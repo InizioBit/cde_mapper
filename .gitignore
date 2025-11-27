@@ -1,0 +1,38 @@
+# Ignore operating system files
+*.DS_Store
+Thumbs.db
+
+# Ignore build directories
+/build/
+/dist/
+
+# Ignore dependency directories
+/node_modules/
+/vendor/
+
+# Ignore log files
+*.log
+
+*.env
+# Ignore configuration files with sensitive information
+config.ini
+secrets.json
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignore temporary files
+*.tmp
+*.swp
+*.pyc
+*.DS_Store
+poetry.lock
+resources/models/.locks/models--cambridgeltl--SapBERT-from-PubMedBERT-fulltext/8342f3adf937298e71303d4b7e7a605689e5a844.lock
+*.lock
