@@ -1,0 +1,80 @@
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{media/Framework Usulan 09072026.png}
+    \caption{Framework adaptasi pemetaan terminologi klinis Bahasa Indonesia}
+    \label{fig:alur-operasional-mapping}
+\end{figure}
+
+tahap:} daftar Top-\textit{k} kandidat konsep dari terminologi target yang telah diperkaya sinonim \citep{gilani_cde-mapper_2025}.
+    \end{itemize}
+
+    \item \textbf{\textit{Filtering} berbasis aturan dan \textit{threshold}.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} mengurangi kandidat yang tidak sesuai domain, tipe semantik, atau ambang kemiripan.
+        \item \textbf{Aturan contoh:} diagnosis hanya menerima kandidat \textit{disorder}; entitas laboratorium hanya menerima kandidat LOINC yang relevan; dan ICD-10 hanya menerima kode diagnosis, dengan pertimbangan bab atau sub-bab sesuai kata kunci klinis.
+        \item \textbf{Contoh eliminasi:} pada entitas ``gula darah puasa'', kandidat glukosa urin atau glukosa sewaktu dieliminasi bila konteks spesimen, waktu, atau satuannya tidak sesuai.
+        \item \textbf{Keluaran tahap:} kandidat yang lebih bersih sebelum masuk ke \textit{reranking}, dengan bantuan ambang seperti \textit{cosine similarity} \citep{chen_clinical_2020}.
+    \end{itemize}
+
+    \item \textbf{\textit{RerankingUsulan adaptasi CDE-Mapper dapat dilihat pada bagian dengan arsir hijau di Gambar 4.2. Berikut adalah penjelasan rinci setiap langkah beserta komponen yang diadaptasi untuk Bahasa Indonesia.
+
+\begin{enumerate}
+    \item \textbf{Pra-pemrosesan dan normalisasi bahasa.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} membersihkan teks, melakukan segmentasi kalimat, menormalkan singkatan, mengoreksi \textit{typo}, serta menstandarkan simbol, angka, dan satuan.
+        \item \textbf{Adaptasi untuk Bahasa Indonesia:} penambahan kamus singkatan medis lokal, misalnya ``DM'' menjadi ``diabetes mellitus'' dan ``TD'' menjadi ``tekanan darah''; stemming Bahasa Indonesia contohnya dengan algoritma Nazief-Adriani; dan penanganan variasi ejaan tidak baku, misalnya ``demem'' menjadi ``demam''.
+        \item \textbf{Contoh input:} ``Px dgn DM tipe 2, GDP 126 mg/dL, TD 150/90''.
+        \item \textbf{Contoh keluaran:} ``pasien dengan diabetes mellitus tipe 2, gula darah puasa 126 mg/dL, tekanan darah 150/90''.
+        \item \textbf{Keluaran tahap:} teks klinis bersih yang siap diproses oleh modul ekstraksi entitas.
+    \end{itemize}
+
+    \item \textbf{Ekstraksi entitas klinis (\textit{long-text entity extraction}).}
+    \begin{itemize}
+        \item \textbf{Fungsi:} mengekstraksi entitas klinis dari teks panjang menggunakan LLM atau model NER yang disesuaikan. Berbeda dari CDE-Mapper asli yang berfokus pada CDE tunggal, modul ini mengekstraksi banyak entitas dari satu dokumen.
+        \item \textbf{Atribut yang diambil:} \textit{Base entity}, \textit{Domain}, \textit{Additional Entities}, \textit{Categories}, \textit{Unit}, \textit{Visit}, dan \textit{Method}.
+        \item \textbf{Output terstruktur:} disusun dalam format JSON agar dapat diproses \textit{downstream}, termasuk deteksi negasi sederhana, misalnya ``tidak ada riwayat...'', dan konteks waktu, misalnya ``sebelumnya'' atau ``kini''.
+        \item \textbf{Contoh hasil:} ``diabetes mellitus tipe 2'' sebagai diagnosis; ``gula darah puasa 126 mg/dL'' sebagai pemeriksaan laboratorium; dan ``tekanan darah 150/90'' sebagai tanda vital.
+        \item \textbf{Keluaran tahap:} daftar \textit{mention} terstruktur sehingga satu dokumen panjang dapat menghasilkan beberapa CDE sekaligus \citep{purwitasari_comparison_2023}.
+    \end{itemize}
+
+    \item \textbf{Klasifikasi tipe CDE dan penentuan terminologi target.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} menentukan jenis entitas dan terminologi standar yang paling sesuai berdasarkan aturan pengikatan (\textit{linking rules}) untuk konteks SATUSEHAT.
+        \item \textbf{Aturan umum:} temuan, diagnosis, atau keluhan diarahkan ke SNOMED CT; tes atau hasil laboratorium diarahkan ke LOINC; dan diagnosis untuk pelaporan atau klasifikasi diarahkan ke ICD-10.
+        \item \textbf{Fallback:} bila tidak ditemukan padanan SNOMED CT yang spesifik, sistem mengembalikan kandidat konsep yang lebih luas (\textit{broader match}) atau menyarankan \textit{post-coordination} bila memungkinkan.
+        \item \textbf{Contoh:} ``diabetes mellitus tipe 2'' diarahkan ke SNOMED CT dan ICD-10, sedangkan ``gula darah puasa'' diarahkan ke LOINC.
+        \item \textbf{Keluaran tahap:} pasangan entitas dengan terminologi target berdasarkan \textit{linking rules} yang dapat dikonfigurasi \citep{ayuningtyas_bringing_2025}.
+    \end{itemize}
+
+    \item \textbf{Dekomposisi \textit{query} untuk entitas komposit.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} memecah entitas kompleks menjadi komponen yang lebih spesifik agar proses \textit{retrieval} tidak terlalu umum \citep{gilani_cde-mapper_2025}.
+        \item \textbf{Contoh entitas:} ``gula darah puasa 126 mg/dL''.
+        \item \textbf{Contoh dekomposisi:} \textit{Base entity} = glukosa; \textit{Domain} = laboratorium; \textit{Visit/context} = puasa; \textit{Unit} = mg/dL.
+        \item \textbf{Keluaran tahap:} \textit{query} terstruktur yang diarahkan ke konsep observasi glukosa puasa, bukan hanya kecocokan kata ``gula''.
+    \end{itemize}
+
+    \item \textbf{\textit{Ensemble retrieval} kandidat konsep.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} mencari kandidat kode dari \textit{knowledge base} terminologi menggunakan kombinasi \textit{sparse retriever} dan \textit{dense retriever} yang disesuaikan untuk bahasa Indonesia.
+        \item \textbf{Jalur leksikal (\textit{sparse retriever}):} menangkap kecocokan kata seperti ``glucose'', ``fasting'', dan ``mg/dL''. \textit{Sparse retriever} lebih robust terhadap variasi ejaan, tokenisasi, dan singkatan. Dapat ditambahkan kamus singkatan dan normalisasi morfologis ringan untuk memperbaiki pencarian leksikal.
+        \item \textbf{Jalur semantik (\textit{dense retriever}):} menangkap kemiripan makna antara ``gula darah puasa'' dan ``fasting blood glucose'' menggunakan model \textit{embedding}, misalnya SapBERT yang di-\textit{fine-tune} pada data klinis Bahasa Indonesia.
+        \item \textbf{Keluaran } dan keputusan akhir.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} menilai ulang kandidat Top-\textit{k} menggunakan LLM atau model \textit{reranker} dengan mempertimbangkan definisi konsep, sinonim, dan, jika ada, konteks kalimat dari dokumen.
+        \item \textbf{Kategori keputusan:} \textit{exact}, \textit{highly}, \textit{partial}, atau \textit{not relevant}.
+        \item \textbf{Contoh:} ``diabetes mellitus tipe 2'' diberi label \textit{exact} untuk SNOMED CT 44054006 dan ICD-10 E11.9, sedangkan ``diabetes mellitus'' tanpa tipe diberi label \textit{partial}.
+        \item \textbf{Keluaran tahap:} kandidat final (Top-1 dan Top-\textit{k}), label kesesuaian, dan skor kepercayaan. \textit{Self-consistency} dapat digunakan untuk menstabilkan keputusan \citep{gilani_cde-mapper_2025}.
+    \end{itemize}
+
+    \item \textbf{\textit{Knowledge reservoir}.}
+    \begin{itemize}
+        \item \textbf{Fungsi:} menyimpan pasangan \textit{mention} berbahasa Indonesia dan kode standar yang telah divalidasi ahli.
+        \item \textbf{Contoh simpanan:} ``DM tipe 2''--SNOMED CT 44054006 dan ``DM tipe 2''--ICD-10 E11.9.
+        \item \textbf{Manfaat:} mempercepat pemetaan istilah berulang dan meningkatkan konsistensi lintas dokumen.
+        \item \textbf{Peran \textit{human-in-the-loop}:} karena belum ada \textit{gold standard} otomatis untuk istilah lokal, hasil pemetaan, terutama yang memiliki \textit{confidence} rendah atau menengah, akan divalidasi oleh ahli, seperti dokter atau perekam medis. Hasil validasi dipakai untuk membangun \textit{knowledge reservoir} sehingga performa meningkat seiring waktu.
+        \item \textbf{Keluaran tahap:} referensi tervalidasi untuk inferensi berikutnya, dengan pemeriksaan konteks tetap dilakukan agar pemetaan tidak keliru \citep{gilani_cde-mapper_2025}.
+    \end{itemize}
+\end{enumerate}
+
+Contoh alur \textit{end-to-end}: masukan \textit{``Px dgn DM tipe 2, GDP 126 mg/dL, TD 150/90''} akan dinormalisasi menjadi istilah baku, dipecah menjadi tiga entitas klinis, diarahkan ke terminologi target yang berbeda, kemudian menghasilkan kandidat seperti SNOMED CT 44054006 atau ICD-10 E11.9 untuk diagnosis diabetes mellitus tipe 2 serta kandidat LOINC untuk observasi glukosa puasa. Dengan demikian, satu dokumen klinis panjang dapat menghasilkan beberapa pemetaan standar secara simultan.
