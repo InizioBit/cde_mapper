@@ -192,6 +192,18 @@ Keluaran:
 - dataset uji kecil berisi input-output normalisasi;
 - metrik intrinsic: exact normalized match, typo recovery rate, dan error analysis.
 
+Status implementasi Tahap 1:
+
+- modul normalisasi deterministik dibuat di `rag/id_preprocess.py`;
+- kamus awal singkatan medis lokal dibuat di `data/input/id_abbreviations.json`;
+- kamus koreksi typo/ejaan tidak baku dibuat di `data/input/id_typos.json`;
+- kamus normalisasi satuan dibuat di `data/input/id_units.json`;
+- dataset uji kecil input-output normalisasi dibuat di `data/gold/id_normalization_gold.jsonl`;
+- audit intrinsic dibuat di `scripts/audit_id_preprocess.py`;
+- wrapper WSL conda env `cde-mapper` dibuat di `scripts/audit_id_preprocess_wsl.sh`;
+- laporan Tahap 1 dibuat di `Riset/LAPORAN_TAHAP_1_NORMALISASI.md`;
+- hasil audit runtime disimpan di `Riset/id_preprocess_audit_result.json`.
+
 ### Tahap 2 - Ekstraksi Entitas Klinis dari Teks Panjang
 
 Tujuan: memperluas baseline dari satu CDE per baris menjadi banyak entitas dari satu dokumen klinis.

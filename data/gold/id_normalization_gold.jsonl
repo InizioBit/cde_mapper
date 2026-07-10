@@ -1,0 +1,5 @@
+{"id":"norm-001","input":"Px dgn DM tipe 2, GDP 126 mg/dL, TD 150/90","expected":"pasien dengan diabetes melitus tipe 2, gula darah puasa 126 mg/dL, tekanan darah 150/90","focus":["abbreviation","unit"]}
+{"id":"norm-002","input":"Pasien demem dan batuk, spo2 95 %, n 88 x/menit","expected":"pasien demam dan batuk, saturasi oksigen 95%, nadi 88 x/menit","focus":["typo","abbreviation","symbol"]}
+{"id":"norm-003","input":"BB 70 kg, TB 165 cm, Hb 12 gr/dl","expected":"berat badan 70 kg, tinggi badan 165 cm, hemoglobin 12 g/dL","focus":["abbreviation","unit"]}
+{"id":"norm-004","input":"Riw HT, TD 160 / 100 mmhg","expected":"riwayat hipertensi, tekanan darah 160/100 mmHg","focus":["abbreviation","unit","symbol"]}
+{"id":"norm-005","input":"GDS 210 mg / dl; pasien diabetis mellitus","expected":"gula darah sewaktu 210 mg/dL; pasien diabetes melitus","focus":["typo","abbreviation","unit"]}
