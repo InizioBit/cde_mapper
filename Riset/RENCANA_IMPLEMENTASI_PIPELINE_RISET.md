@@ -158,6 +158,15 @@ Keluaran:
 - script reproducible untuk menjalankan indexing dan inference;
 - daftar gap teknis yang harus diperbaiki sebelum adaptasi.
 
+Status implementasi Tahap 0:
+
+- konfigurasi baseline dibuat di `configs/baseline.yaml`;
+- input smoke test dibuat di `data/input/baseline_smoke.csv`;
+- smoke audit dibuat di `scripts/baseline_smoke.py`;
+- wrapper WSL conda env `cde-mapper` dibuat di `scripts/audit_baseline_wsl.sh`;
+- laporan baseline dibuat di `Riset/LAPORAN_BASELINE.md`;
+- hasil audit runtime disimpan di `Riset/baseline_audit_result.json`.
+
 ### Tahap 1 - Normalisasi Bahasa Indonesia
 
 Tujuan: mengubah teks klinis Bahasa Indonesia mentah menjadi teks bersih dan standar.

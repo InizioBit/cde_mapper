@@ -1,29 +1,14 @@
-from .param import *
-from .utils import *
-from .bi_encoder import *
+"""CDE-Mapper RAG package.
 
-# from .database import *
-from .data_loader import *
+Keep package import lightweight. Import concrete modules directly, for example:
 
-# from .data_loader import *
-# from .ensemble_cretriever import *
-from .graph_omop import *
-from .eval import *
-from .llm_chain import *
+    from rag.data_loader import load_data
+    from rag.retriever import map_data
 
-# from .indexer import *
-from .preprocess_data import *
+The previous package initializer imported the full retrieval and LLM stack on
+`import rag`, which made reproducibility checks fail when GPU devices or LLM
+credentials were unavailable.
+"""
 
-# from .run_main import *
-from .manager import *
-from .athena_api_retriever import *
-from .embeddingfilter import *
-from .vector_index import *
+from .param import *  # noqa: F403
 
-# from .vector_search import *
-# from .qdrant import *
-from .retriever import *
-from .py_model import *
-from .compress import *
-from .sql import *
-from .evalmap import *

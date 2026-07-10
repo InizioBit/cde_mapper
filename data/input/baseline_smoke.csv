@@ -1,0 +1,4 @@
+variablename,variablelabel,categorical,units,formula,visits
+smoke_dm,Diabetes mellitus type 2,1=yes|0=no,,,Baseline
+smoke_gdp,Fasting blood glucose,,mg/dL,,Baseline
+smoke_td,Systolic blood pressure,,mmHg,,Baseline

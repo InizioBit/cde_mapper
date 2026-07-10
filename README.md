@@ -38,22 +38,39 @@ pip install pandas tqdm torch transformers python-dotenv qdrant-client langchain
 Running Experiments on NCBI Dataset
 Below are examples of how to run experiments using the {NCBI} dataset or anyother dataset with CDE-Mapper. These examples demonstrate both standard inference and using the LLAMA3.1 model for enhanced performance.
 
-## Standard Inference: To perform standard inference on the BC5CDR-Disease dataset, use the following command:
+## Baseline Smoke Audit
+
+For the research audit baseline, use WSL with the `cde-mapper` conda environment:
+
+```bash
+wsl -e bash -lc "cd /mnt/d/Program/cde_mapper && bash scripts/audit_baseline_wsl.sh"
 ```
-PYTHONPATH=python3 mapping_tool/rag/vector_index.py' \
-  --mode recreate \
-  --collection_name bc5cdr_custom_collection  \
-  --document_file_path mapping_tool/data/original_bc5cdr-disease/test_dictionary_docs.jsonl \
-  --input_data mapping_tool/data/eval_datasets/original_bc5cdr-disease/random_queries_500.txt  \
-  --output_file mapping_tool/data/eval_datasets/original_bc5cdr-disease/original_bc5cdr_mapped.txt
+
+This smoke audit checks local imports, custom data loading, mapping template JSON, and temporary SQLite reservoir initialization without calling Qdrant, Athena, or an LLM.
+
+## Standard Inference
+
+To perform standard inference through the current baseline entry point, use `run.py`:
+
+```
+python run.py \
+  --flag inference \
+  --input_file data/input/baseline_smoke.csv \
+  --custom_data \
+  --is_omop_data \
+  --collection_name concept_mapping_1 \
+  --llm_id llama3.1 \
+  --topk 5 \
+  --output_file data/output/baseline_smoke_mapped.csv
 ```
 
 ## Explanation of Parameters:
 
-* **mode inference:** Sets the mode to recreate. Use 'inference' for existing collection.
-* **collection_name ncbi_custom_collection:** Specifies the collection name.
-* **document_file_path:** Path to the JSONL file containing the list of langchain documents.
-* **input_data:** Path to the text file containing combined test queries, format (id||mention).
+* **flag inference:** Use an existing vector collection. Use `recreate` only when rebuilding a collection from `--document_file_path`.
+* **collection_name concept_mapping_1:** Specifies the Qdrant collection name.
+* **input_file:** Path to the CSV, TXT, or JSON input file.
+* **custom_data:** Treat CSV input as a data dictionary with fields such as `variablename`, `variablelabel`, `categorical`, `units`, `formula`, and `visits`.
+* **is_omop_data:** Enable OMOP-specific domain and vocabulary filtering.
 * **output_file:** Path where the output results will be saved.
 
 ## LLAMA3.1 Inference
@@ -61,14 +78,15 @@ PYTHONPATH=python3 mapping_tool/rag/vector_index.py' \
 For enhanced inference using the LLAMA3.1 model, execute the following command:
 
 ```
-PYTHONPATH=mapping_tool python3 'mapping_tool/rag/vector_index.py' \
-  --mode inference \
-  --collection_name bc5cdr_custom_collection \
-  --document_file_path mapping_tool/data/original_bc5cdr-disease/test_dictionary_docs.jsonl \
-  --input_data mapping_tool/data/eval_datasets/original_bc5cdr-disease/random_queries_500.txt \
-  --output_file mapping_tool/data/eval_datasets/original_bc5cdr-disease/original_bc5cdr_llama3.1_stage1_prompt2.txt \
-  --use_llm \
-  --llm_id llama3.1
+python run.py \
+  --flag inference \
+  --input_file data/input/baseline_smoke.csv \
+  --custom_data \
+  --is_omop_data \
+  --collection_name concept_mapping_1 \
+  --llm_id llama3.1 \
+  --topk 5 \
+  --output_file data/output/baseline_smoke_llama31_mapped.csv
 ```
 
 
@@ -91,5 +109,4 @@ Please ensure your contributions adhere to the existing code style and include a
 
 ```markdown
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-
 

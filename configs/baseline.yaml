@@ -1,0 +1,63 @@
+# Baseline reproducibility configuration for CDE-Mapper.
+# This file is intentionally declarative; scripts may read it later, but the
+# current baseline runner still uses CLI arguments and constants in rag/param.py.
+
+project:
+  name: cde-mapper
+  stage: tahap-0-audit-baseline
+  working_directory_windows: D:\Program\cde_mapper
+  working_directory_wsl: /mnt/d/Program/cde_mapper
+  python_environment:
+    platform: wsl
+    conda_env: cde-mapper
+    ignore_environment_yml: true
+
+baseline_code:
+  entrypoint: run.py
+  loader: rag/data_loader.py
+  orchestrator: rag/retriever.py
+  vector_index: rag/vector_index.py
+  llm_chain: rag/llm_chain.py
+  reservoir: rag/sql.py
+  params: rag/param.py
+
+default_params:
+  flag: inference
+  retriever_type: dense+sparse
+  collection_name: concept_mapping_1
+  embedding_model: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
+  sparse_embedding_model: Qdrant/bm42-all-minilm-l6-v2-attentions
+  llm_id: llama3.1
+  topk: 5
+  is_omop_data: true
+  custom_data: true
+  qdrant_url: komal.qdrant.137.120.31.148.nip.io
+  qdrant_port: 443
+
+paths:
+  smoke_input: data/input/baseline_smoke.csv
+  mapping_templates: data/input/mapping_templates.json
+  reservoir_db: variables.db
+  baseline_report: Riset/LAPORAN_BASELINE.md
+  audit_json: Riset/baseline_audit_result.json
+
+smoke_test_scope:
+  import_modules: true
+  load_custom_data: true
+  validate_query_model: true
+  validate_mapping_templates_json: true
+  validate_reservoir_sqlite_with_temp_db: true
+  call_qdrant_or_llm: false
+
+full_inference_command:
+  note: Requires network access to Qdrant/Athena and configured LLM credentials/runtime.
+  command: >
+    python run.py
+    --flag inference
+    --input_file data/input/baseline_smoke.csv
+    --custom_data
+    --is_omop_data
+    --collection_name concept_mapping_1
+    --llm_id llama3.1
+    --topk 5
+    --output_file data/output/baseline_smoke_mapped.csv

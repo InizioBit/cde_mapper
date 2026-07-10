@@ -1,0 +1,41 @@
+{
+  "script": "scripts/baseline_smoke.py",
+  "python": "3.10.19 | packaged by conda-forge | (main, Oct 22 2025, 22:29:10) [GCC 14.3.0]",
+  "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "duration_seconds": 3.45,
+  "loaded_queries": 3,
+  "reservoir_rows": 10,
+  "checks": [
+    {
+      "check": "import_baseline_modules",
+      "ok": true,
+      "detail": "rag.param, rag.data_loader, rag.sql"
+    },
+    {
+      "check": "smoke_input_exists",
+      "ok": true,
+      "detail": "/mnt/d/Program/cde_mapper/data/input/baseline_smoke.csv"
+    },
+    {
+      "check": "load_custom_smoke_data",
+      "ok": true,
+      "detail": "queries=3, is_mapped=False"
+    },
+    {
+      "check": "mapping_templates_json",
+      "ok": true,
+      "detail": "path=/mnt/d/Program/cde_mapper/data/input/mapping_templates.json, top_level_keys=7, database_data=2063"
+    },
+    {
+      "check": "reservoir_temp_sqlite",
+      "ok": true,
+      "detail": "rows=10"
+    },
+    {
+      "check": "import_retrieval_stack",
+      "ok": true,
+      "detail": "skipped by design: full retrieval imports can initialize embedding/LLM dependencies; use run.py for full inference"
+    }
+  ],
+  "ok": true
+}
