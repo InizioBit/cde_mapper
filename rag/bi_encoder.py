@@ -19,7 +19,7 @@ def get_device():
     if torch.cuda.is_available() and torch.cuda.device_count() > 2:
         return torch.device("cuda:1")
     elif torch.cuda.is_available():
-        return torch.device("cuda:1")
+        return torch.device("cuda:0")
     else:
         return torch.device("cpu")
 
@@ -299,7 +299,7 @@ class SAPEmbeddings(Embeddings):
             trust_remote_code=False,
             cache_dir=CACHE_DIR,
             attn_implementation="eager",
-            output_attentions=True,
+            output_attentions=False,
         )
         self.EMBED_CACHE = {}
         self.model.to(self.device)
@@ -636,17 +636,29 @@ class SAPEmbeddings(Embeddings):
     #     return entity_embedding
 
 
-# SPARSE MODEL
-model_name = "naver/splade-cocondenser-ensembledistil"
-tokenizer = AutoTokenizer.from_pretrained(
-    model_name, cache_dir=CACHE_DIR, use_fast=True, max_length=25, truncation=True
-)
-model = AutoModelForMaskedLM.from_pretrained(model_name, cache_dir=CACHE_DIR)
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-model.to(device)
+# Legacy SPLADE encoder. Load it only when sparse_encoder is called; the main
+# pipeline uses FastEmbedSparse and should not allocate this second model merely
+# by importing SAPEmbeddings.
+SPARSE_MODEL_NAME = "naver/splade-cocondenser-ensembledistil"
+_sparse_tokenizer = None
+_sparse_model = None
+_sparse_device = None
+
+
+def _get_sparse_components():
+    global _sparse_tokenizer, _sparse_model, _sparse_device
+    if _sparse_model is None:
+        _sparse_tokenizer = AutoTokenizer.from_pretrained(
+            SPARSE_MODEL_NAME, cache_dir=CACHE_DIR, use_fast=True, max_length=25, truncation=True
+        )
+        _sparse_model = AutoModelForMaskedLM.from_pretrained(SPARSE_MODEL_NAME, cache_dir=CACHE_DIR)
+        _sparse_device = get_device()
+        _sparse_model.to(_sparse_device)
+    return _sparse_tokenizer, _sparse_model, _sparse_device
 
 
 def sparse_encoder(text: str) -> tuple[list[int], list[float]]:
+    tokenizer, model, device = _get_sparse_components()
     entity, _, parent_term = parse_text(text)
     if parent_term:
         entity = entity + ", " + parent_term

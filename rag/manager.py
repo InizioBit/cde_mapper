@@ -63,7 +63,8 @@ class LLMManager:
         # org_id = os.getenv("OPENAI_ORG_ID")
         my_org_id = os.getenv("CT_MAPPER_OPENAI_ORG_ID")
         groq_api = os.getenv("GROQ_API_KEY")
-        togather_api = os.getenv("TOGATHER_API_KEY")
+        # Prefer Together's canonical variable; retain the legacy typo as fallback.
+        together_api = os.getenv("TOGETHER_API_KEY") or os.getenv("TOGATHER_API_KEY")
         hf_key = os.getenv("HF_API_KEY")
         # mixtral_api = os.getenv("MIXTRAL_API_KEY")
         if hugging_face and "gpt" not in model:
@@ -93,7 +94,7 @@ class LLMManager:
             if model == "llama3":
                 # active_model = ChatGroq(temperature=0,groq_api_key=groq_api, model="llama-3.1-70b-versatile",max_retries=3)
                 active_model = ChatTogether(
-                    api_key=togather_api,
+                    api_key=together_api,
                     model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
                     temperature=0,
                     max_retries=3,
@@ -104,7 +105,7 @@ class LLMManager:
                 #     model="llama3.1:8b",
                 #     temperature=0,
                 # )
-            elif model == "llama3.1":
+            elif model in {"gemma-3n", "google/gemma-3n-E4B-it"}:
                 # active_model = ChatGroq(temperature=0,groq_api_key=groq_api, model="llama-3.1-70b-versatile",max_retries=3)
                 # active_model = ChatOllama(
                 #     base_url="http://ollama:11434",  # Ollama server endpoint
@@ -112,8 +113,8 @@ class LLMManager:
                 #     temperature=0,
                 # )
                 active_model = ChatTogether(
-                    api_key=togather_api,
-                    model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+                    api_key=together_api,
+                    model="google/gemma-3n-E4B-it",
                     temperature=0,
                     max_retries=3,
                 )
@@ -144,7 +145,7 @@ class LLMManager:
                 # )
             elif model == "llama3.2":
                 active_model = ChatTogether(
-                    api_key=togather_api,
+                    api_key=together_api,
                     model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
                     temperature=0,
                     max_retries=3,
@@ -184,7 +185,7 @@ class LLMManager:
                 )
             elif model == "gemma":
                 active_model = ChatTogether(
-                    api_key=togather_api,
+                    api_key=together_api,
                     model="google/gemma-2-27b-it",
                     temperature=0,
                     max_retries=3,
@@ -192,14 +193,14 @@ class LLMManager:
 
             elif model == "mistral":
                 active_model = ChatTogether(
-                    api_key=togather_api,
+                    api_key=together_api,
                     model="mistralai/Mistral-7B-Instruct-v0.3",
                     temperature=0,
                     max_retries=3,
                 )
             elif model == "mixtral":
                 active_model = ChatTogether(
-                    api_key=togather_api,
+                    api_key=together_api,
                     model="mistralai/Mixtral-8x22B-Instruct-v0.1",
                     temperature=0,
                     max_retries=3,

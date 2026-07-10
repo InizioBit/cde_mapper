@@ -56,7 +56,7 @@ python run.py \
   --custom_data \
   --is_omop_data \
   --collection_name concept_mapping_1 \
-  --llm_id llama3.1 \
+  --llm_id google/gemma-3n-E4B-it \
   --topk 5 \
   --output_file data/output/baseline_smoke_mapped.csv
 ```
@@ -119,6 +119,63 @@ Hasil eksekusi pada WSL conda env `cde-mapper`:
 - Belum ada dataset gold Bahasa Indonesia untuk evaluasi mapping final.
 - README perlu dipertahankan sinkron dengan entry point aktual jika pipeline berubah.
 
+## Implementasi Full Inference dan Evaluasi
+
+Tahap 0 dilengkapi dengan artefak berikut:
+
+- `scripts/audit_baseline_integration.py`: validasi online Qdrant, Athena, dan Together;
+- `scripts/baseline_experiment.py`: retrieval dense dan sparse secara berurutan, merger Top-10, latency per sumber, error per query, serta manifest run;
+- `scripts/baseline_llm_rerank.py`: reranking kandidat tersimpan menggunakan `google/gemma-3n-E4B-it`;
+- `evaluation/baseline_retrieval_eval.py`: accuracy, precision, recall, MRR, NDCG, coverage, error rate, serta distribusi latency;
+- `scripts/capture_baseline_environment.py`: snapshot Python, platform, commit, conda package, dan pip package tanpa secret;
+- `data/gold/baseline_retrieval_gold.jsonl`: gold subset 10 query dengan OMOP ID dan vocabulary code ekuivalen.
+
+Command reproducible:
+
+```bash
+conda run --no-capture-output -n cde-mapper \
+  python scripts/baseline_experiment.py --run-id baseline-gemma3n-stage0 --skip-llm-check
+
+conda run --no-capture-output -n cde-mapper \
+  python scripts/baseline_llm_rerank.py \
+  --input data/output/baseline/baseline-gemma3n-stage0.jsonl \
+  --output data/output/baseline/baseline-gemma3n-stage0-reranked.jsonl
+
+conda run --no-capture-output -n cde-mapper \
+  python evaluation/baseline_retrieval_eval.py \
+  --input data/output/baseline/baseline-gemma3n-stage0-reranked.jsonl \
+  --output Riset/baseline_reranked_metrics.json
+```
+
+`--skip-llm-check` pada retrieval run hanya mencegah model LLM hidup bersamaan dengan model embedding. Validasi LLM online dan reranking aktual tetap dijalankan sebagai proses terpisah.
+
+## Hasil Baseline 10 Juli 2026
+
+Retrieval hybrid Qdrant dense-sparse:
+
+| Metrik | Nilai |
+|---|---:|
+| Coverage | 1.00 |
+| Accuracy@1 / @3 / @5 / @10 | 0.60 / 0.60 / 0.70 / 0.90 |
+| Precision@1 / @3 / @5 / @10 | 0.60 / 0.20 / 0.14 / 0.09 |
+| Recall@1 / @3 / @5 / @10 | 0.60 / 0.60 / 0.70 / 0.90 |
+| MRR | 0.64 |
+| NDCG@10 | 0.6965 |
+| Latency mean / p50 / p95 | 1488.18 / 1386.53 / 1959.57 ms |
+
+Setelah reranking Gemma:
+
+| Metrik | Nilai |
+|---|---:|
+| Accuracy@1 / @3 / @5 / @10 | 0.40 / 0.70 / 0.80 / 0.90 |
+| MRR | 0.5843 |
+| NDCG@10 | 0.6613 |
+| Reranking berhasil | 10/10 query |
+
+Gemma memperbaiki cakupan ranking @3 dan @5, tetapi menurunkan Accuracy@1 dan MRR pada subset ini. Karena itu reranking belum boleh diasumsikan selalu meningkatkan hasil dan perlu prompt/calibration study pada tahap berikutnya.
+
+Audit integrasi mengonfirmasi collection Qdrant `concept_mapping_1` tersedia dengan 3.695.703 point dan model Gemma dapat dipanggil melalui `TOGETHER_API_KEY`. Athena mengembalikan HTTP 403 untuk seluruh query. `partial_source_error_rate=1.0` mencatat gangguan tersebut, sedangkan `query_failure_rate=0.0` karena Qdrant tetap menghasilkan kandidat untuk semua query.
+
 ## Status
 
-Status: artefak Tahap 0 sudah disiapkan dan smoke audit berhasil dijalankan di WSL dengan conda env `cde-mapper`.
+Status: Tahap 0 selesai sebagai baseline reproducible dengan smoke audit, integration audit, dependency snapshot, output Top-k, manifest, full Gemma reranking, metrik, coverage, dan latency. Athena berstatus keterbatasan eksternal terdokumentasi; eksperimen memakai fallback Qdrant dense-sparse dan tidak menyamarkan sumber yang gagal sebagai passed.

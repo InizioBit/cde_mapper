@@ -1,0 +1,10 @@
+{"id":"baseline-001","query":"Patient hospital number","domain":"observation","gold_ids":["4086934","snomed:184107009"],"source":"mapping_templates.database_data"}
+{"id":"baseline-002","query":"Baseline time","domain":"observation","gold_ids":["40766819","loinc:64103-5"],"source":"mapping_templates.database_data"}
+{"id":"baseline-003","query":"Age","domain":"observation","gold_ids":["3022304","loinc:30525-0"],"source":"mapping_templates.database_data"}
+{"id":"baseline-004","query":"Sex assigned at birth","domain":"observation","gold_ids":["46235213","loinc:76689-9"],"source":"mapping_templates.database_data"}
+{"id":"baseline-005","query":"Body weight","domain":"measurement","gold_ids":["3025315","loinc:29463-7"],"source":"mapping_templates.database_data"}
+{"id":"baseline-006","query":"Body height","domain":"measurement","gold_ids":["3036277","loinc:8302-2"],"source":"mapping_templates.database_data"}
+{"id":"baseline-007","query":"Waist circumference","domain":"measurement","gold_ids":["4172830","snomed:276361009"],"source":"mapping_templates.database_data"}
+{"id":"baseline-008","query":"Body mass index (BMI) [Ratio]","domain":"measurement","gold_ids":["3038553","loinc:39156-5"],"source":"mapping_templates.database_data"}
+{"id":"baseline-009","query":"kilogram","domain":"unit","gold_ids":["9529","ucum:kg"],"source":"mapping_templates.database_data"}
+{"id":"baseline-010","query":"centimeter","domain":"unit","gold_ids":["8582","ucum:cm"],"source":"mapping_templates.database_data"}

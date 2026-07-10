@@ -166,6 +166,14 @@ Status implementasi Tahap 0:
 - wrapper WSL conda env `cde-mapper` dibuat di `scripts/audit_baseline_wsl.sh`;
 - laporan baseline dibuat di `Riset/LAPORAN_BASELINE.md`;
 - hasil audit runtime disimpan di `Riset/baseline_audit_result.json`.
+- audit integrasi online Qdrant, Athena, dan Together dibuat di `scripts/audit_baseline_integration.py`;
+- gold subset retrieval 10 query dibuat di `data/gold/baseline_retrieval_gold.jsonl`;
+- runner hybrid dense-sparse reproducible dibuat di `scripts/baseline_experiment.py`;
+- reranking full inference Gemma dibuat di `scripts/baseline_llm_rerank.py`;
+- evaluator artefak Top-k dibuat di `evaluation/baseline_retrieval_eval.py`;
+- dependency snapshot aktual disimpan di `configs/cde-mapper-environment.json`;
+- metrik retrieval dan reranking disimpan di `Riset/baseline_metrics.json` dan `Riset/baseline_reranked_metrics.json`;
+- Athena mengembalikan HTTP 403 pada audit 10 Juli 2026; kegagalan sumber ini dicatat eksplisit dan tidak menggagalkan fallback hybrid Qdrant.
 
 ### Tahap 1 - Normalisasi Bahasa Indonesia
 

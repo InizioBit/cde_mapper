@@ -1,0 +1,32 @@
+{
+  "ok": false,
+  "checks": [
+    {
+      "check": "together_key_present",
+      "status": "passed",
+      "latency_ms": 0.008,
+      "detail": "TOGETHER_API_KEY is set"
+    },
+    {
+      "check": "qdrant_collection",
+      "status": "failed",
+      "latency_ms": 61186.557,
+      "error": "ResponseHandlingException(ConnectTimeout('_ssl.c:1000: The handshake operation timed out'))"
+    },
+    {
+      "check": "athena_retrieval",
+      "status": "failed",
+      "latency_ms": 1807.036,
+      "error": "RuntimeError('Athena returned no candidates')"
+    },
+    {
+      "check": "together_llm",
+      "status": "passed",
+      "latency_ms": 1456.018,
+      "detail": {
+        "model": "google/gemma-3n-E4B-it",
+        "response_nonempty": true
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 from rag.llm_chain import evaluate_final_mapping
+from rag.param import LLM_ID
 import re
 
 
@@ -44,7 +45,7 @@ EXPLANATION_PATTERN = re.compile(
 #     return pred_dict
 
 
-def perform_mapping_eval_for_variable(var_: dict, llm_id: str = "llama3.1") -> dict:
+def perform_mapping_eval_for_variable(var_: dict, llm_id: str = LLM_ID) -> dict:
     variable = var_
     print(f"Evaluating variable: {variable}")
     # delete VARIABLE NAME key from variable
@@ -76,4 +77,3 @@ def perform_mapping_eval_for_variable(var_: dict, llm_id: str = "llama3.1") -> d
     # variable["VARIABLE NAME"] = var_["VARIABLE NAME"]
     print(f"Evaluation done for  variable: {variable}")
     return variable
-

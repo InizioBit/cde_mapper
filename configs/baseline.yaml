@@ -22,13 +22,14 @@ baseline_code:
   params: rag/param.py
 
 default_params:
+  device: cpu
   flag: inference
-  retriever_type: dense+sparse
+  retriever_type: hybrid
   collection_name: concept_mapping_1
   embedding_model: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
   sparse_embedding_model: Qdrant/bm42-all-minilm-l6-v2-attentions
-  llm_id: llama3.1
-  topk: 5
+  llm_id: google/gemma-3n-E4B-it
+  topk: 10
   is_omop_data: true
   custom_data: true
   qdrant_url: komal.qdrant.137.120.31.148.nip.io
@@ -40,6 +41,10 @@ paths:
   reservoir_db: variables.db
   baseline_report: Riset/LAPORAN_BASELINE.md
   audit_json: Riset/baseline_audit_result.json
+  gold_file: data/gold/baseline_retrieval_gold.jsonl
+  experiment_output_dir: data/output/baseline
+  metrics_json: Riset/baseline_metrics.json
+  environment_snapshot: configs/cde-mapper-environment.json
 
 smoke_test_scope:
   import_modules: true
@@ -58,6 +63,6 @@ full_inference_command:
     --custom_data
     --is_omop_data
     --collection_name concept_mapping_1
-    --llm_id llama3.1
-    --topk 5
+    --llm_id google/gemma-3n-E4B-it
+    --topk 10
     --output_file data/output/baseline_smoke_mapped.csv

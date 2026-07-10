@@ -1,0 +1,30 @@
+{
+  "input": "data/output/baseline/baseline-gemma3n-stage0-reranked.jsonl",
+  "query_count": 10,
+  "coverage": 1.0,
+  "query_failure_rate": 0.0,
+  "partial_source_error_rate": 1.0,
+  "mrr": 0.5842857142857143,
+  "latency_ms": {
+    "mean": 3223.5949,
+    "p50": 2472.8165,
+    "p95": 6523.2847499999925,
+    "max": 9448.314
+  },
+  "accuracy@1": 0.4,
+  "precision@1": 0.4,
+  "recall@1": 0.4,
+  "ndcg@1": 0.4,
+  "accuracy@3": 0.7,
+  "precision@3": 0.2333333333333333,
+  "recall@3": 0.7,
+  "ndcg@3": 0.5892789260714373,
+  "accuracy@5": 0.8,
+  "precision@5": 0.15999999999999998,
+  "recall@5": 0.8,
+  "ndcg@5": 0.6279642067948914,
+  "accuracy@10": 0.9,
+  "precision@10": 0.09,
+  "recall@10": 0.9,
+  "ndcg@10": 0.6612975401282248
+}

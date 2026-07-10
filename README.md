@@ -59,7 +59,7 @@ python run.py \
   --custom_data \
   --is_omop_data \
   --collection_name concept_mapping_1 \
-  --llm_id llama3.1 \
+  --llm_id google/gemma-3n-E4B-it \
   --topk 5 \
   --output_file data/output/baseline_smoke_mapped.csv
 ```
@@ -84,7 +84,7 @@ python run.py \
   --custom_data \
   --is_omop_data \
   --collection_name concept_mapping_1 \
-  --llm_id llama3.1 \
+  --llm_id google/gemma-3n-E4B-it \
   --topk 5 \
   --output_file data/output/baseline_smoke_llama31_mapped.csv
 ```
@@ -109,4 +109,3 @@ Please ensure your contributions adhere to the existing code style and include a
 
 ```markdown
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-

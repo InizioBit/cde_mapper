@@ -20,7 +20,7 @@ from .param import MAPPING_FILE, LLM_ID
 from .py_model import QueryDecomposedModel, sanitize_keys
 from .manager import LLMManager, ExampleSelectorManager
 
-parsing_llm = LLMManager.get_instance("llama3.1")
+parsing_llm = LLMManager.get_instance(LLM_ID)
 parser = JsonOutputParser()
 fixing_parser = OutputFixingParser.from_llm(
     parser=parser, llm=parsing_llm, max_retries=3
@@ -639,7 +639,7 @@ def validate_result(result: Dict) -> Dict:
     return result
 
 
-def evaluate_final_mapping(variable_object: Dict, llm_id: str = "llama3.1"):
+def evaluate_final_mapping(variable_object: Dict, llm_id: str = LLM_ID):
     active_model = LLMManager.get_instance(model=llm_id)
     human_template = f""" Task: Given the variable object as input, assess the mapping accuracy. Use the provided codes and names as correct and do not infer or substitute alternate codes. Additionally, provide an evaluation:
         - Output "correct" if all codes and domains match input fields.
@@ -1015,7 +1015,7 @@ def create_overlapping_segments(documents, overlap=2):
 
 
 def get_llm_results_with_overlap(
-    prompt, query, documents, max_retries=2, llm=None, llm_name="llama3.1"
+    prompt, query, documents, max_retries=2, llm=None, llm_name=LLM_ID
 ):
     if len(documents) >= 5:
         overlapping_segments = create_overlapping_segments(documents, overlap=2)
@@ -1096,7 +1096,7 @@ def get_llm_results_with_overlap(
 
 
 def get_llm_results(
-    prompt, query, documents, max_retries=2, llm=None, llm_name="llama3.1"
+    prompt, query, documents, max_retries=2, llm=None, llm_name=LLM_ID
 ):
     def process_half(doc_half, max_retries=max_retries):
         attempt = 0

@@ -18,8 +18,9 @@ import time
 from pathlib import Path
 
 
-def _result(name: str, ok: bool, detail: str = "") -> dict:
-    return {"check": name, "ok": ok, "detail": detail}
+def _result(name: str, ok: bool | None, detail: str = "") -> dict:
+    status = "skipped" if ok is None else "passed" if ok else "failed"
+    return {"check": name, "status": status, "ok": ok, "detail": detail}
 
 
 def main() -> int:
@@ -108,12 +109,12 @@ def main() -> int:
     checks.append(
         _result(
             "import_retrieval_stack",
-            True,
+            None,
             "skipped by design: full retrieval imports can initialize embedding/LLM dependencies; use run.py for full inference",
         )
     )
 
-    ok_all = all(item["ok"] for item in checks)
+    ok_all = all(item["ok"] is not False for item in checks)
     _write_report(args.output_json, started, checks, loaded_queries, database_rows)
     return 0 if ok_all else 1
 
@@ -127,7 +128,7 @@ def _write_report(output_json: str, started: float, checks: list[dict], loaded_q
         "loaded_queries": loaded_queries,
         "reservoir_rows": database_rows,
         "checks": checks,
-        "ok": all(item["ok"] for item in checks),
+        "ok": all(item["ok"] is not False for item in checks),
     }
     out = Path(output_json)
     out.parent.mkdir(parents=True, exist_ok=True)

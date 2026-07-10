@@ -44,6 +44,7 @@ if __name__ == "__main__":
     parser.add_argument('--collection_name', type=str, default=SYN_COLLECTION_NAME, help='vector collection name')
     parser.add_argument('--llm_id', type=str, default=LLM_ID, help='LLM model name')
     parser.add_argument('--topk', type=int, default=5, help='Top k documents to retrieve')
+    parser.add_argument('--max_queries', type=int, default=None, help='Optional explicit query limit')
     parser.add_argument('--input_file', type=str, required=True, help='File containing queries (.csv or .txt)')
     parser.add_argument('--custom_data', action='store_true', help='Flag to use custom data for retriever')
     parser.add_argument('--eval', action='store_true', help='Flag to use custom data for retriever')
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     start_time = datetime.now()
     # parser.add_argument('--custom_data',action='store_true',help='Flag to use custom data for retriever')
     args = parser.parse_args()
-    embeddings = SAPEmbeddings()
+    embeddings = SAPEmbeddings(model_id=args.model_id)
     sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm42-all-minilm-l6-v2-attentions")
     output_file = args.input_file.replace('.csv', '_mapped.csv')
     logger.info(f"Using output file: {output_file}")
@@ -68,12 +69,14 @@ if __name__ == "__main__":
         raise Warning("Input data is already mapped, please provide raw data for retrieval.")
     else:
         hybrid_search = generate_vector_index(embeddings, sparse_embeddings, docs_file= args.document_file_path,mode=args.flag,
-                                            collection_name=args.collection_name, topk=args.topk)
+                                            collection_name=args.collection_name, topk=args.topk,
+                                            retrieval_mode=args.retriever_type)
         # compressed_hybrid_retriever =  set_compression_retriever(hybrid_search)
         athena_api_retriever = initiate_api_retriever()
         merger_retriever= set_merger_retriever(retrievers=[hybrid_search,athena_api_retriever])
         # merger_retriever = set_compression_retriever(merger_retriever)
-        results=map_data(data[:15],merger_retriever,custom_data=args.custom_data,output_file=args.output_file,
+        selected_data = data[:args.max_queries] if args.max_queries is not None else data
+        results=map_data(selected_data,merger_retriever,custom_data=args.custom_data,output_file=output_file,
                 llm_name=args.llm_id,topk=args.topk,do_eval=args.eval, is_omop_data=args.is_omop_data, )
         print(f"Results: {results}")
         append_results_to_csv(args.input_file,results, logger) 

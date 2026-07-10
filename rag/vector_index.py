@@ -123,6 +123,7 @@ def generate_vector_index(
     mode="inference",
     collection_name="concept_mapping",
     topk=10,
+    retrieval_mode="hybrid",
 ):
     if sparse_embedding is None:
         # Qdrant/bm42-all-minilm-l6-v2-attentions
@@ -149,7 +150,7 @@ def generate_vector_index(
             sparse_vector_name="omop_sparse_vector",
             sparse_embedding=sparse_embedding,
             collection_name=collection_name,
-            retrieval_mode=RetrievalMode.DENSE,
+            retrieval_mode=RetrievalMode(retrieval_mode),
             vector_params={
                 "size": 768,
                 "distance": Distance.COSINE,
@@ -188,7 +189,7 @@ def generate_vector_index(
             vector_name="omop_dense_vector",
             sparse_vector_name="omop_sparse_vector",
             distance=rest.Distance.COSINE,
-            retrieval_mode=RetrievalMode.DENSE,
+            retrieval_mode=RetrievalMode(retrieval_mode),
             validate_collection_config=True,
         )
         if mode == "update":
@@ -213,7 +214,8 @@ def generate_vector_index(
     #         )
 
     return vector_store.as_retriever(
-        search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.5}
+        search_type="similarity_score_threshold",
+        search_kwargs={"score_threshold": 0.5, "k": topk},
     )
 
     # return vector_store.as_retriever(search_kwargs={"k": topk})
