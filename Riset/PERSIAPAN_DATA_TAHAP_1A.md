@@ -124,6 +124,114 @@ variablename,variablelabel,categorical,units,formula,visits,gold_concept_ids,dom
 
 Kolom tambahan mempertahankan gold ID, domain, dan provenance. `custom_data_loader` saat ini mengabaikan kolom tambahan sehingga CSV tetap dapat digunakan untuk inference. Namun, loader masih menetapkan `domain="all"`; kolom `domain` baru memengaruhi retrieval jika loader diperluas.
 
+### 3.3 Dampak atribut yang tidak tersedia
+
+Atribut kosong tidak selalu menurunkan kualitas mapping. Dampaknya bergantung pada jenis entitas dan tujuan pemrosesan. Pada BC5CDR-Disease, `categorical`, `units`, `formula`, dan `visits` umumnya memang tidak berlaku karena setiap record adalah mention penyakit. Sebaliknya, atribut yang sama dapat sangat menentukan untuk measurement, obat, atau observation.
+
+| Atribut yang tidak tersedia | Dampak umum | Kapan signifikan |
+|---|---|---|
+| `variablelabel` | Sangat tinggi | Selalu; merupakan query utama |
+| `domain` | Tinggi | Filtering domain dan vocabulary |
+| `gold_concept_ids` | Sangat tinggi untuk evaluasi | Perhitungan Accuracy@k, Recall@k, MRR, dan NDCG |
+| `units` | Tinggi | Laboratorium, measurement, dan dosis obat |
+| `categorical` | Sedang–tinggi | Pertanyaan ordinal atau nilai positif/negatif |
+| `formula` | Sedang–tinggi | Variabel turunan seperti BMI atau eGFR |
+| `visits` | Rendah–sedang | Konteks baseline, follow-up, dan analisis longitudinal |
+| `target_vocabularies` | Tinggi | Pemetaan multi-terminologi |
+
+#### Label, domain, dan gold ID
+
+`variablelabel` wajib tersedia karena menjadi input query, base entity awal, dan sumber pembuatan embedding. Record tanpa label seharusnya ditolak atau dilewati.
+
+Domain membatasi ruang pencarian:
+
+```text
+condition    → SNOMED CT
+measurement  → LOINC/SNOMED CT
+unit         → UCUM
+drug         → RxNorm/ATC
+```
+
+Jika domain tidak tersedia, pipeline masih dapat memakai `domain="all"`, tetapi kandidat salah domain dapat meningkat sehingga precision dan Accuracy@1 menurun. Hal ini penting pada implementasi saat ini karena `custom_data_loader` masih menetapkan domain menjadi `all`, meskipun CSV mempunyai kolom `domain`. Loader perlu diperluas sebelum eksperimen multi-domain.
+
+`gold_concept_ids` tidak diperlukan untuk menjalankan inference, tetapi wajib untuk evaluasi kuantitatif:
+
+```text
+Inference       → gold ID opsional
+Evaluasi riset  → gold ID wajib
+```
+
+Tanpa gold ID, hasil hanya dapat diperiksa secara manual dan kontribusi setiap komponen tidak dapat dibuktikan melalui metrik retrieval.
+
+#### Unit, category, formula, dan visit
+
+Unit membantu membedakan measurement serta memetakan unit UCUM. Sebagai contoh, query `glucose` tanpa konteks dapat merujuk glukosa darah, urine, puasa, sewaktu, atau postprandial. Informasi `mg/dL`, `mmol/L`, specimen, dan waktu pemeriksaan membantu memilih konsep yang lebih spesifik.
+
+Category diperlukan untuk memetakan answer concept seperti:
+
+```text
+yes|no
+positive|negative
+never|former|current
+mild|moderate|severe
+```
+
+Formula membantu membedakan nilai yang diukur langsung dan nilai turunan, misalnya BMI atau eGFR. Visit umumnya tidak mengubah konsep klinis utama, tetapi diperlukan untuk provenance dan analisis longitudinal seperti baseline dibanding follow-up.
+
+#### Dampak khusus untuk BC5CDR-Disease
+
+Untuk record berikut:
+
+```csv
+bc5cdr_000001,torsade de pointes,,,,,D016171,condition,combined_test_queries
+```
+
+nilai kosong pada `categorical`, `units`, `formula`, dan `visits` tidak berdampak signifikan karena atribut tersebut memang tidak berlaku pada mention penyakit. Atribut yang harus dipertahankan adalah:
+
+```text
+variablelabel
+gold_concept_ids
+domain=condition
+source_dataset
+```
+
+Kondisinya berbeda untuk data Indonesia multi-domain. Jika `GDP 126 mg/dL` hanya disimpan sebagai `gula darah`, pipeline kehilangan konteks `puasa`, unit `mg/dL`, dan domain `measurement`. Kandidat glukosa sewaktu, postprandial, urine, atau konsep zat dapat muncul dan menurunkan ketepatan mapping.
+
+#### Status missing value
+
+Dataset penelitian sebaiknya membedakan tiga alasan nilai kosong:
+
+```text
+not_applicable → atribut memang tidak berlaku
+unknown        → atribut mungkin berlaku, tetapi nilainya tidak diketahui
+not_annotated  → atribut belum dianotasi
+```
+
+Contoh penyimpanan:
+
+```csv
+units,units_status
+,not_applicable
+,unknown
+,not_annotated
+mg/dL,available
+```
+
+Perbedaan ini mencegah sistem menyamakan unit yang tidak berlaku pada diagnosis dengan unit laboratorium yang hilang atau belum dianotasi.
+
+#### Kelengkapan yang disarankan per domain
+
+| Domain | Label | Unit | Category | Formula | Visit | Gold ID untuk evaluasi |
+|---|---:|---:|---:|---:|---:|---:|
+| Condition | Wajib | Tidak berlaku | Opsional | Tidak berlaku | Opsional | Wajib |
+| Measurement | Wajib | Dianjurkan | Opsional | Opsional | Opsional | Wajib |
+| Drug | Wajib | Dosis/unit dianjurkan | Tidak berlaku | Tidak berlaku | Opsional | Wajib |
+| Procedure | Wajib | Tidak berlaku | Tidak berlaku | Tidak berlaku | Opsional | Wajib |
+| Survey/Observation | Wajib | Opsional | Dianjurkan | Opsional | Opsional | Wajib |
+| Unit | Wajib | Menjadi mention utama | Tidak berlaku | Tidak berlaku | Tidak berlaku | Wajib |
+
+Prinsip yang digunakan adalah: **jangan mengarang atribut yang tidak tersedia, tetapi catat apakah atribut tersebut tidak berlaku, tidak diketahui, atau belum dianotasi**.
+
 ## 4. Konversi File Query Teks
 
 ### 4.1 Aturan pemetaan
@@ -329,7 +437,153 @@ doc_001,ent_003,tekanan darah,,mmHg,,,measurement,LOINC,
 
 Gold ID tidak boleh berasal dari tebakan sistem yang sedang dievaluasi. Nilainya harus ditentukan melalui anotasi ahli atau sumber mapping independen.
 
-## 9. Rekomendasi Pemakaian
+## 9. Rekomendasi Dataset Publik OMOP
+
+Tidak ada dataset publik OMOP yang secara native menyediakan seluruh atribut Tahap 1a. OMOP CDM menyimpan kejadian klinis pasien, sedangkan Tahap 1a adalah format data dictionary untuk terminology mapping. Label, kategori, unit, visit, domain, dan gold concept dapat direkonstruksi melalui beberapa tabel, tetapi `formula` tidak mempunyai kolom generik dalam OMOP CDM.
+
+### 9.1 Perbandingan dataset
+
+| Dataset | Condition | Measurement dan unit | Observation/category | Visit | Vocabulary | Formula | Kesesuaian |
+|---|---:|---:|---:|---:|---:|---:|---|
+| MIMIC-IV Demo OMOP | Ya | Ya | Ya | Ya | Parsial | Tidak | Paling mendekati Tahap 1a |
+| Eunomia | Ya | Ya | Ya | Ya | Subset | Tidak | Terbaik untuk smoke/integration test |
+| Synthea → OMOP | Ya | Ya | Ya | Ya | Memerlukan ETL dan vocabulary | Tidak | Data sintetis skala besar |
+| MIMIC-BR | Ya | Ya | Ya | Ya | Tergantung rilis | Tidak | Alternatif data rumah sakit/ICU |
+| CMS Synthetic PUF | Claims | Terbatas | Terbatas | Claims encounter | Bukan OMOP native | Tidak | Kurang cocok untuk Tahap 1a |
+
+### 9.2 MIMIC-IV Demo OMOP
+
+[MIMIC-IV Demo OMOP](https://physionet.org/content/mimic-iv-demo-omop/0.9/) merupakan pilihan publik yang paling mendekati kebutuhan Tahap 1a. Dataset demo mencakup 100 pasien dan menyediakan tabel seperti:
+
+```text
+condition_occurrence
+measurement
+observation
+drug_exposure
+procedure_occurrence
+visit_occurrence
+visit_detail
+specimen
+```
+
+Pemetaan atributnya:
+
+| Tahap 1a | Sumber OMOP |
+|---|---|
+| `variablelabel` | `*_source_value` atau nama konsep hasil join |
+| `categorical` | `value_as_concept_id` atau `value_source_value` |
+| `units` | `unit_concept_id` dan `unit_source_value` |
+| `formula` | Tidak tersedia secara generik |
+| `visits` | `visit_occurrence_id` → `visit_occurrence` |
+| `domain` | Tabel sumber atau `CONCEPT.domain_id` |
+| `method` | `measurement.method_concept_id` |
+| `gold_concept_ids` | Standard `*_concept_id` |
+| `target_vocabularies` | `CONCEPT.vocabulary_id` |
+
+Daftar file resminya mencakup `measurement.csv`, `observation.csv`, `condition_occurrence.csv`, dan `visit_occurrence.csv`. [Daftar file MIMIC-IV Demo OMOP](https://physionet.org/content/mimic-iv-demo-omop/0.9/1_omop_data_csv/)
+
+Keterbatasannya:
+
+- hanya local concepts tertentu yang disertakan dalam vocabulary files;
+- standard vocabulary lengkap harus diperoleh secara terpisah;
+- beberapa source concept belum dipetakan secara memadai;
+- free-text note tidak dipopulasi;
+- formula data dictionary tidak tersedia.
+
+### 9.3 Eunomia
+
+[Eunomia](https://ohdsi.github.io/Eunomia/) adalah sample dataset resmi ekosistem OHDSI untuk testing dan demonstrasi. Dataset ini mengikuti OMOP CDM, dapat berjalan dengan SQLite, dan menyertakan subset Standardized Vocabularies.
+
+Eunomia direkomendasikan untuk:
+
+- menguji join antar-tabel OMOP;
+- integration test loader;
+- menguji condition, measurement, drug, dan visit;
+- membuat sampel CSV Tahap 1a tanpa menyiapkan server database.
+
+Eunomia tidak disarankan sebagai benchmark mapping final karena merupakan sample/synthetic data, vocabulary-nya hanya subset, dan tidak dirancang sebagai gold standard terminology mapping.
+
+### 9.4 Synthea, MIMIC-BR, dan CMS synthetic data
+
+- [Synthea](https://github.com/synthetichealth/synthea) dapat menghasilkan populasi pasien sintetis dalam jumlah yang ditentukan, kemudian dikonversi ke OMOP dengan ETL. Pilihan ini cocok untuk stress test dan skalabilitas, tetapi kualitas mapping bergantung pada ETL dan ketersediaan vocabulary.
+- [MIMIC-BR](https://physionet.org/content/mimic-br/1.0.0/) diturunkan dari OMOP CDM dan menyediakan data rumah sakit/ICU, termasuk visit dan measurement. Dataset ini tetap memerlukan adapter dan bukan data Bahasa Indonesia.
+- [CMS Synthetic Public Use Files](https://www.cms.gov/data-research/statistics-trends-and-reports/medicare-claims-synthetic-public-use-files) lebih berorientasi claims dan bukan OMOP native. Dataset ini kurang sesuai untuk measurement, unit, formula, serta konteks klinis kaya atribut.
+
+### 9.5 Rekonstruksi Tahap 1a dari OMOP
+
+Untuk `MEASUREMENT`, bentuk CSV Tahap 1a dengan prinsip:
+
+```text
+input label       = measurement_source_value
+categorical       = value_as_concept_id/value_source_value
+unit              = unit_source_value/unit_concept_id
+visit             = join visit_occurrence_id
+domain            = measurement
+gold concept ID   = measurement_concept_id
+target vocabulary = vocabulary dari standard concept
+formula           = kosong + status not_available
+```
+
+Contoh SQL konseptual:
+
+```sql
+SELECT
+    CONCAT('measurement_', m.measurement_id) AS variablename,
+    COALESCE(NULLIF(m.measurement_source_value, ''), c.concept_name)
+        AS variablelabel,
+    value_concept.concept_name AS categorical,
+    COALESCE(NULLIF(m.unit_source_value, ''), unit_concept.concept_name)
+        AS units,
+    '' AS formula,
+    visit_concept.concept_name AS visits,
+    c.domain_id AS domain,
+    c.concept_id AS gold_concept_ids,
+    c.vocabulary_id AS target_vocabularies
+FROM measurement m
+LEFT JOIN concept c
+    ON c.concept_id = m.measurement_concept_id
+LEFT JOIN concept value_concept
+    ON value_concept.concept_id = m.value_as_concept_id
+LEFT JOIN concept unit_concept
+    ON unit_concept.concept_id = m.unit_concept_id
+LEFT JOIN visit_occurrence v
+    ON v.visit_occurrence_id = m.visit_occurrence_id
+LEFT JOIN concept visit_concept
+    ON visit_concept.concept_id = v.visit_concept_id;
+```
+
+Untuk condition, gunakan `condition_source_value` sebagai input dan `condition_concept_id` sebagai gold. Pola yang sama dapat diterapkan pada drug, procedure, dan observation.
+
+### 9.6 Risiko data leakage
+
+Jangan membentuk benchmark utama dengan pasangan berikut:
+
+```text
+input = standard CONCEPT.concept_name
+gold  = concept_id dari standard concept yang sama
+```
+
+Kasus tersebut terlalu mudah karena query identik dengan label dalam knowledge base. Bentuk yang lebih valid adalah:
+
+```text
+input = *_source_value atau label lokal asli
+gold  = standard *_concept_id
+```
+
+Lebih baik lagi, gunakan label sumber rumah sakit dan gold mapping yang telah diverifikasi ahli. Pastikan source value bukan hanya kode tanpa label; jika berupa kode, simpan kode dan label sumber sebagai field terpisah.
+
+### 9.7 Rekomendasi pemilihan
+
+```text
+Uji teknis/loader        → Eunomia
+Dataset Tahap 1a kaya    → MIMIC-IV Demo OMOP
+Uji skalabilitas         → Synthea → OMOP
+Eksperimen Indonesia     → dataset baru tervalidasi ahli
+```
+
+MIMIC-IV Demo OMOP dapat menyediakan struktur dan variasi domain untuk baseline, tetapi tidak menggantikan dataset Bahasa Indonesia. Formula, singkatan lokal, variasi ejaan, dan gold mapping Indonesia tetap harus disiapkan secara terpisah.
+
+## 10. Rekomendasi Pemakaian
 
 | Tujuan | Dataset |
 |---|---|
@@ -338,6 +592,9 @@ Gold ID tidak boleh berasal dari tebakan sistem yang sedang dievaluasi. Nilainya
 | Evaluasi multi-gold | `test_queries.txt` |
 | Knowledge base lokal | `test_dictionary_docs.jsonl` |
 | Evaluasi normalisasi Indonesia | `id_normalization_gold.jsonl` |
+| Uji struktur dan join OMOP | Eunomia |
+| Pembentukan Tahap 1a publik multi-domain | MIMIC-IV Demo OMOP |
+| Uji skalabilitas data sintetis | Synthea → OMOP |
 | Evaluasi mapping Indonesia final | Dataset baru tervalidasi ahli |
 
 Urutan praktis:
@@ -349,7 +606,7 @@ Urutan praktis:
 5. gunakan hasil sebagai baseline disease retrieval berbahasa Inggris;
 6. susun dataset Bahasa Indonesia terpisah untuk eksperimen utama.
 
-## 10. Kesimpulan
+## 11. Kesimpulan
 
 Repositori mempunyai dataset yang lebih layak daripada `baseline_smoke.csv` untuk evaluasi retrieval, terutama `combined_test_queries.txt` dan `test_queries.txt`. Namun, tidak ada dataset lain yang langsung mempunyai seluruh atribut Tahap 1a.
 
