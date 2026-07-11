@@ -151,6 +151,32 @@ conda run --no-capture-output -n cde-mapper \
 
 ## Hasil Baseline 10 Juli 2026
 
+### Ground Truth dan Objek Perbandingan
+
+Evaluasi menggunakan `data/gold/baseline_retrieval_gold.jsonl` yang berisi 10 query. Setiap query memiliki satu konsep target yang direpresentasikan dalam dua identifier ekuivalen, yaitu OMOP concept ID dan pasangan vocabulary-code. Contoh untuk query `Body weight` adalah OMOP ID `3025315` dan kode `loinc:29463-7`. Kedua identifier tersebut menunjuk konsep yang sama dan tidak dihitung sebagai dua gold concept terpisah.
+
+Gold set ini diturunkan dari `database_data` pada `data/input/mapping_templates.json`. Hasil yang dibandingkan terhadap gold set adalah kandidat Top-10 dalam `data/output/baseline/baseline-gemma3n-stage0.jsonl`. Kandidat tersebut berasal dari dense retrieval SapBERT dan sparse retrieval BM42/FastEmbed pada collection Qdrant `concept_mapping_1`, kemudian digabung secara interleaving dan dideduplikasi. Sebuah kandidat dinilai relevan apabila sekurang-kurangnya satu nilai pada `candidate.identifiers` sama dengan OMOP ID atau vocabulary-code pada `gold_ids`.
+
+Secara ringkas, evaluasi melakukan pemeriksaan berikut untuk setiap kandidat:
+
+```text
+relevan = candidate.identifiers ∩ gold_ids tidak kosong
+```
+
+### Cara Menghitung Metrik
+
+- **Accuracy@k** adalah proporsi query yang konsep benarnya ditemukan setidaknya sekali dalam Top-k. Nilai `Accuracy@1=0.60` berarti 6 dari 10 query mempunyai konsep benar pada rank pertama. `Accuracy@10=0.90` berarti konsep benar ditemukan dalam Top-10 untuk 9 dari 10 query.
+- **Precision@k** adalah jumlah kandidat relevan dalam Top-k dibagi `k`. Karena benchmark ini hanya mempunyai satu konsep target per query, nilai precision secara alami mengecil ketika `k` bertambah. Oleh karena itu, Accuracy@k dan Recall@k lebih informatif untuk membaca keberhasilan candidate generation pada benchmark single-label ini.
+- **Recall@k** adalah jumlah konsep gold yang ditemukan dalam Top-k dibagi jumlah konsep gold. Karena hanya ada satu konsep target per query, Recall@k pada eksperimen ini sama dengan Accuracy@k.
+- **Reciprocal Rank (RR)** untuk satu query adalah `1/rank` dari kandidat benar pertama. Query yang benar pada rank 1 mendapat RR `1`, rank 2 mendapat `0.5`, rank 5 mendapat `0.2`, dan query tanpa kandidat benar mendapat `0`. **MRR** adalah rata-rata RR seluruh query.
+- **NDCG@k** memberi nilai lebih tinggi apabila kandidat benar berada lebih dekat ke rank pertama. Untuk satu konsep relevan, kontribusinya dihitung sebagai `1/log2(rank+1)` dan dinormalisasi terhadap kondisi ideal saat konsep benar berada pada rank pertama.
+- **Coverage** adalah jumlah query yang menghasilkan sekurang-kurangnya satu kandidat dibagi seluruh query.
+- **Latency** diukur per query untuk dense Qdrant, sparse Qdrant, Athena, dan total retrieval. Laporan menyajikan mean, median (`p50`), dan persentil ke-95 (`p95`). Untuk hasil setelah reranking, latency total juga mencakup pemanggilan Gemma.
+
+Contoh: apabila konsep benar pertama muncul pada rank 3 dari lima kandidat, maka `Accuracy@1=0`, `Accuracy@3=1`, `Precision@5=1/5=0.2`, `Recall@5=1`, RR `=1/3`, dan NDCG@5 `=1/log2(4)=0.5` untuk query tersebut. Nilai akhir laporan adalah rata-rata hasil seluruh query.
+
+### Hasil Retrieval Hybrid
+
 Retrieval hybrid Qdrant dense-sparse:
 
 | Metrik | Nilai |
@@ -163,6 +189,10 @@ Retrieval hybrid Qdrant dense-sparse:
 | NDCG@10 | 0.6965 |
 | Latency mean / p50 / p95 | 1488.18 / 1386.53 / 1959.57 ms |
 
+Coverage `1.00` dan `query_failure_rate=0.0` menunjukkan seluruh query menghasilkan kandidat. Accuracy meningkat dari `0.60` pada Top-1 menjadi `0.90` pada Top-10, sehingga candidate generator mempunyai cakupan yang baik pada `k=10`, tetapi hanya enam query yang langsung benar pada posisi pertama. MRR `0.64` dan NDCG@10 `0.6965` menunjukkan kandidat benar umumnya berada cukup tinggi, meskipun belum konsisten pada rank pertama.
+
+### Perbandingan Setelah Reranking Gemma
+
 Setelah reranking Gemma:
 
 | Metrik | Nilai |
@@ -172,7 +202,13 @@ Setelah reranking Gemma:
 | NDCG@10 | 0.6613 |
 | Reranking berhasil | 10/10 query |
 
-Gemma memperbaiki cakupan ranking @3 dan @5, tetapi menurunkan Accuracy@1 dan MRR pada subset ini. Karena itu reranking belum boleh diasumsikan selalu meningkatkan hasil dan perlu prompt/calibration study pada tahap berikutnya.
+Ground truth yang digunakan setelah reranking tetap sama; yang berubah hanya urutan kandidat. Gemma memperbaiki Accuracy@3 dari `0.60` menjadi `0.70` dan Accuracy@5 dari `0.70` menjadi `0.80`, tetapi menurunkan Accuracy@1 dari `0.60` menjadi `0.40`, MRR dari `0.64` menjadi `0.5843`, serta NDCG@10 dari `0.6965` menjadi `0.6613`. Artinya, Gemma berhasil membawa beberapa kandidat benar masuk ke Top-3 dan Top-5, tetapi juga memindahkan sejumlah kandidat yang semula benar pada rank pertama ke posisi yang lebih rendah. Karena itu reranking belum boleh diasumsikan selalu meningkatkan hasil dan memerlukan perbaikan prompt serta calibration study pada tahap berikutnya.
+
+### Keterbatasan Interpretasi
+
+Gold set hanya terdiri atas 10 query dan diturunkan dari `mapping_templates.json`, yang juga berfungsi sebagai reservoir/training example baseline. Kondisi ini menimbulkan risiko data leakage dan membuat sebagian query relatif mudah karena label query dekat atau identik dengan label konsep standar. Dataset ini juga belum merepresentasikan variasi istilah klinis Bahasa Indonesia, typo, singkatan ambigu, code-mixing, atau konteks klinis panjang, serta belum divalidasi secara independen oleh ahli terminologi klinis.
+
+Dengan demikian, angka pada bagian ini harus diposisikan sebagai **internal smoke benchmark untuk reproducibility Tahap 0**, bukan sebagai estimasi performa final pipeline riset. Evaluasi ilmiah utama perlu menggunakan gold standard terpisah dari reservoir, mencakup variasi linguistik yang realistis, dan memperoleh validasi ahli.
 
 Audit integrasi mengonfirmasi collection Qdrant `concept_mapping_1` tersedia dengan 3.695.703 point dan model Gemma dapat dipanggil melalui `TOGETHER_API_KEY`. Athena mengembalikan HTTP 403 untuk seluruh query. `partial_source_error_rate=1.0` mencatat gangguan tersebut, sedangkan `query_failure_rate=0.0` karena Qdrant tetap menghasilkan kandidat untuk semua query.
 
