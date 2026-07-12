@@ -583,6 +583,205 @@ Eksperimen Indonesia     → dataset baru tervalidasi ahli
 
 MIMIC-IV Demo OMOP dapat menyediakan struktur dan variasi domain untuk baseline, tetapi tidak menggantikan dataset Bahasa Indonesia. Formula, singkatan lokal, variasi ejaan, dan gold mapping Indonesia tetap harus disiapkan secara terpisah.
 
+### 9.8 Tahapan teknis menggunakan repo MIMIC-IV Demo OMOP
+
+Repo [MIT-LCP/mimic-iv-demo-omop](https://github.com/MIT-LCP/mimic-iv-demo-omop/tree/master) berisi kode ETL, schema, crosswalk, custom mapping, vocabulary refresh, dan quality assurance. Repo tersebut tidak memuat seluruh output patient-level OMOP. Pemanfaatannya dibagi menjadi dua jalur:
+
+```text
+Jalur A: custom mapping/crosswalk → benchmark terminology mapping ringan
+Jalur B: output OMOP PhysioNet   → dataset patient-event multi-atribut
+```
+
+#### Tahap 1 — Tetapkan versi dan provenance
+
+Clone dan pin commit sumber:
+
+```bash
+git clone https://github.com/MIT-LCP/mimic-iv-demo-omop.git \
+  external/mimic-iv-demo-omop
+cd external/mimic-iv-demo-omop
+git rev-parse HEAD
+```
+
+Manifest harus menyimpan commit SHA, versi MIMIC, versi OMOP CDM, versi vocabulary, dan tanggal ekstraksi. Repo menggunakan DDL OMOP CDM 5.3.1, sedangkan proyek ini mengarah ke OMOP v5.4; perbedaan schema dan status concept harus diaudit.
+
+#### Tahap 2 — Pilih jalur sumber
+
+Untuk Jalur A, gunakan:
+
+```text
+crosswalk_csv/d_items_to_concept.csv
+custom_mapping_csv/gcpt_meas_lab_loinc_mod.csv
+custom_mapping_csv/gcpt_meas_chartevents_main_mod.csv
+custom_mapping_csv/gcpt_meas_chartevents_value.csv
+custom_mapping_csv/gcpt_meas_unit.csv
+custom_mapping_csv/gcpt_proc_itemid.csv
+custom_mapping_csv/gcpt_vis_admission.csv
+```
+
+Untuk Jalur B, unduh output demo dari [PhysioNet](https://physionet.org/content/mimic-iv-demo-omop/0.9/1_omop_data_csv/), terutama `measurement.csv`, `condition_occurrence.csv`, `observation.csv`, `drug_exposure.csv`, `procedure_occurrence.csv`, dan `visit_occurrence.csv`.
+
+#### Tahap 3A — Bentuk CSV dari crosswalk/custom mapping
+
+Pemetaan `d_items_to_concept.csv`:
+
+| Field sumber | Field Tahap 1a |
+|---|---|
+| `linksto` + `itemid` | `variablename` |
+| `label`/`source_concept_name` | `variablelabel` |
+| `source_domain_id` | `domain` |
+| `target_vocabulary_id` | `target_vocabularies` |
+| `target_concept_id` | `gold_concept_ids` |
+| `source_code` | `source_code` |
+| `source_vocabulary_id` | `source_vocabulary` |
+| `target_concept_name` | `standard_label` |
+| `target_standard_concept` | `standard_concept` |
+
+Target schema:
+
+```csv
+variablename,variablelabel,categorical,units,formula,visits,domain,target_vocabularies,gold_concept_ids,source_code,source_vocabulary,standard_label,mapping_status,source_dataset
+```
+
+Contoh:
+
+```csv
+chartevents_220045,Heart Rate,,,,,measurement,LOINC,3027018,Heart Rate,mimiciv_meas_chart,Heart rate,mapped,mimic_d_items_crosswalk
+```
+
+Prosedur pembersihan:
+
+1. normalisasi nama kolom dan whitespace;
+2. pertahankan source label, jangan menggantinya dengan standard label;
+3. normalisasi domain secara konsisten;
+4. validasi `target_concept_id`;
+5. deduplikasi pasangan source–target concept;
+6. simpan file dan nomor baris sumber sebagai provenance;
+7. pisahkan mapped dan unmapped.
+
+Baris tanpa target tidak boleh diubah menjadi gold `0`. Tandai sebagai `mapping_status=unmapped`; gunakan untuk coverage analysis atau antrean validasi, bukan accuracy mapping berlabel.
+
+#### Tahap 3B — Bentuk CSV dari patient-event
+
+Rekonstruksi per domain:
+
+```text
+Measurement:
+  label       ← measurement_source_value
+  categorical ← value_source_value/value_as_concept_id
+  unit        ← unit_source_value/unit_concept_id
+  visit       ← visit_occurrence_id
+  gold        ← measurement_concept_id
+
+Condition:
+  label       ← condition_source_value
+  visit       ← visit_occurrence_id
+  gold        ← condition_concept_id
+
+Observation:
+  label       ← observation_source_value
+  categorical ← value_as_concept_id/value_as_string
+  visit       ← visit_occurrence_id
+  gold        ← observation_concept_id
+```
+
+Join visit melalui `visit_occurrence_id`, lalu gunakan jenis/source value visit sebagai konteks. `formula` tetap kosong dengan `formula_status=not_available`.
+
+#### Tahap 4 — Verifikasi metadata target
+
+Lengkapi setiap target concept dengan standard label, vocabulary, domain, standard status, validity date, dan `invalid_reason`. Urutan sumber:
+
+1. snapshot vocabulary OMOP lokal yang versioned;
+2. metadata collection Qdrant sebagai fallback read-only;
+3. mapping repo untuk field yang tersedia.
+
+Karena Athena tidak dapat diakses, persiapan data tidak boleh bergantung pada Athena. Record yang belum dapat diverifikasi diberi `target_metadata_unverified` dan tidak langsung masuk test set utama.
+
+#### Tahap 5 — Selaraskan loader
+
+Perluas `custom_data_loader` agar membaca:
+
+```text
+domain
+target_vocabularies
+gold_concept_ids
+source_code
+source_vocabulary
+source_dataset
+```
+
+Gold ID harus menjadi evaluation metadata terpisah dan tidak boleh masuk `full_query`. Dengan demikian model tidak melihat jawaban saat inference.
+
+#### Tahap 6 — Cegah data leakage
+
+Pasangan test tidak boleh dimasukkan ke `mapping_templates.json`, reservoir, sinonim target, atau few-shot prompt. Split berdasarkan `source_concept_id`/`itemid`, bukan hanya baris acak:
+
+```text
+train 70% | dev 15% | test 15%
+```
+
+Semua variasi satu source concept harus berada pada split yang sama. Knowledge base hanya berisi standard label dan sinonim resmi, sedangkan input evaluasi menggunakan source label MIMIC.
+
+#### Tahap 7 — Validasi kualitas
+
+Audit minimal:
+
+```text
+schema dan missing-label check
+duplicate source-target check
+domain/vocabulary consistency
+target concept existence dan validity
+mapped/unmapped count
+train-test overlap
+```
+
+Ambil sampel per domain untuk validasi manual/ahli, khususnya mapping ambigu, one-to-many, unit, serta measurement yang berbeda specimen atau timing.
+
+#### Tahap 8 — Jalankan baseline dan ablation
+
+| Eksperimen | Tujuan |
+|---|---|
+| Lexical only | Baseline kecocokan source label |
+| Dense only | Kontribusi semantic retrieval |
+| Dense + sparse | Kontribusi hybrid retrieval |
+| + domain filter | Pengaruh domain |
+| + unit/category | Pengaruh atribut tambahan |
+| + Gemma reranking | Pengaruh reranker |
+
+Laporkan metrik per domain dan agregat. Measurement biasanya lebih kompleks karena unit, specimen, method, dan timing membedakan konsep.
+
+#### Tahap 9 — Simpan artefak reproducible
+
+```text
+data/raw/mimic_iv_demo_omop/
+data/processed/mimic_stage_1a.csv
+data/gold/mimic_stage_1a_train.csv
+data/gold/mimic_stage_1a_dev.csv
+data/gold/mimic_stage_1a_test.csv
+configs/mimic_stage_1a.yaml
+Riset/mimic_stage_1a_manifest.json
+Riset/LAPORAN_DATA_MIMIC_TAHAP_1A.md
+```
+
+Manifest menyimpan checksum sumber, commit repo, versi data/CDM/vocabulary, aturan transformasi, dan seed split.
+
+#### Urutan implementasi yang disarankan
+
+```text
+1. Pin commit dan versi data
+2. Pilot dengan d_items_to_concept.csv
+3. Bentuk CSV source-label → gold-concept
+4. Verifikasi target concept
+5. Perluas loader domain/evaluation metadata
+6. Split anti-leakage
+7. Jalankan lexical/dense/hybrid baseline
+8. Tambahkan unit dan categorical value
+9. Lanjutkan ke patient-event PhysioNet
+10. Validasi ahli dan dokumentasikan provenance
+```
+
+Pilot dimulai dari `crosswalk_csv/d_items_to_concept.csv` karena satu tabel sudah memuat source label, domain, target vocabulary, target ID, target label, dan standard status. Setelah converter dan evaluator stabil, perluas ke lab, unit, procedure, visit, lalu patient-event.
+
 ## 10. Rekomendasi Pemakaian
 
 | Tujuan | Dataset |
