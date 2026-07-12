@@ -1,4 +1,10 @@
 
+import os
+
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+
 import argparse
 from rag.bi_encoder import SAPEmbeddings
 from langchain_qdrant import FastEmbedSparse
@@ -61,9 +67,9 @@ if __name__ == "__main__":
     embeddings = SAPEmbeddings(model_id=args.model_id)
     sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm42-all-minilm-l6-v2-attentions")
     output_file = args.input_file.replace('.csv', '_mapped.csv')
-    logger.info(f"Using output file: {output_file}")
     if args.output_file is not None:
         output_file = args.output_file 
+    logger.info(f"Using output file: {output_file}")
     data,mapped_flag = load_data(args.input_file, load_custom=args.custom_data)
     if mapped_flag:
         raise Warning("Input data is already mapped, please provide raw data for retrieval.")
@@ -79,7 +85,7 @@ if __name__ == "__main__":
         results=map_data(selected_data,merger_retriever,custom_data=args.custom_data,output_file=output_file,
                 llm_name=args.llm_id,topk=args.topk,do_eval=args.eval, is_omop_data=args.is_omop_data, )
         print(f"Results: {results}")
-        append_results_to_csv(args.input_file,results, logger) 
+        append_results_to_csv(args.input_file, results, logger, output_file_path=output_file)
         logger.info(f"Total time taken: {str(datetime.now() - start_time)}")
         
     logger.handlers[0].flush()

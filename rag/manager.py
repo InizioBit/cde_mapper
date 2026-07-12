@@ -19,7 +19,7 @@ from typing import List, Dict, Optional, Any
 from langchain_core.embeddings import Embeddings
 from langchain_community.embeddings import FastEmbedEmbeddings
 from qdrant_client import QdrantClient
-from .param import VECTOR_PATH, QDRANT_PORT
+from .param import VECTOR_PATH, QDRANT_PORT, QDRANT_HTTPS, QDRANT_TIMEOUT
 
 
 class QdrantClientSingleton:
@@ -28,7 +28,12 @@ class QdrantClientSingleton:
     @classmethod
     def get_instance(cls, url=VECTOR_PATH, port=QDRANT_PORT, prefer_grpc=False):
         if cls._instance is None:
-            cls._instance = QdrantClient(url=url, port=port, https=True, timeout=500)
+            cls._instance = QdrantClient(
+                url=url,
+                port=port,
+                https=QDRANT_HTTPS,
+                timeout=QDRANT_TIMEOUT,
+            )
             cls._instance.get_collections()
         return cls._instance
 

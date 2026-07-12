@@ -3,12 +3,15 @@ import os
 from datetime import datetime
 CLASS = 'omop_v5.4' #class
 os.environ['HF_HOME'] = 'resources/models'
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 CUDA_NUM = 0 # used GPU num
 LOOK_UP_FILE = "data/output/lookup.csv"
 CROSS_MODEL_ID = "ncbi/MedCPT-Cross-Encoder"
 EMB_MODEL_NAME  ="cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
-VECTOR_PATH="komal.qdrant.137.120.31.148.nip.io"   #:6333
-QDRANT_PORT = 443
+VECTOR_PATH = os.getenv("QDRANT_URL", "komal.qdrant.137.120.31.148.nip.io")   #:6333
+QDRANT_PORT = int(os.getenv("QDRANT_PORT", "443"))
+QDRANT_HTTPS = os.getenv("QDRANT_HTTPS", "true").lower() in {"1", "true", "yes", "on"}
+QDRANT_TIMEOUT = float(os.getenv("QDRANT_TIMEOUT", "300"))
 SYN_COLLECTION_NAME = 'concept_mapping_1'
 #"HIERARCHY_AWARE_SYNONYMS_MAPPING_SAPBERT"   #we embed entities entity+synonym as whole instead of there aggregation
 SYN_SPARSE_COLLECTION_NAME = "SYNONYMS_MAPPING_SPARSE_SPLADE"  # SYNONYMS_MAPPING_SPARSE

@@ -4,6 +4,7 @@ from rag.embeddingfilter import MyEmbeddingsFilter
 from rag.compress import CustomCompressionRetriever, CustomMergeRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
 import json
+import time
 
 # import random
 from rag.utils import global_logger as logger
@@ -23,7 +24,14 @@ from langchain_qdrant import FastEmbedSparse, RetrievalMode
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance
 import qdrant_client.http.models as rest
-from rag.param import VECTOR_PATH, QDRANT_PORT, EMB_MODEL_NAME, LLM_ID
+from rag.param import (
+    VECTOR_PATH,
+    QDRANT_PORT,
+    QDRANT_HTTPS,
+    QDRANT_TIMEOUT,
+    EMB_MODEL_NAME,
+    LLM_ID,
+)
 # import time
 from rag.qdrant import CustomQdrantVectorStore
 # from rag.llm_chain import pass_to_chat_llm_chain
@@ -103,11 +111,36 @@ def _create_payload_index(client, collection_name):
     #                 wait=True
     #             )
 
+def _create_qdrant_client(url=VECTOR_PATH, port=QDRANT_PORT):
+    return QdrantClient(
+        url=url,
+        port=port,
+        https=QDRANT_HTTPS,
+        timeout=QDRANT_TIMEOUT,
+    )
+
+
+def _collection_exists_with_retry(client, collection_name, retries=3, delay=5):
+    last_error = None
+    for attempt in range(1, retries + 1):
+        try:
+            return client.collection_exists(collection_name)
+        except Exception as exc:
+            last_error = exc
+            logger.warning(
+                "Qdrant collection_exists failed "
+                f"({attempt}/{retries}) for '{collection_name}': {exc}"
+            )
+            if attempt < retries:
+                time.sleep(delay)
+    raise last_error
+
+
 def check_collection_exists(collection_name:str):
     """Check if a collection exists in Qdrant."""
-    client = QdrantClient(url=VECTOR_PATH, port=QDRANT_PORT, https=True, timeout=300)
+    client = _create_qdrant_client()
     try:
-        exists = client.collection_exists(collection_name)
+        exists = _collection_exists_with_retry(client, collection_name)
         logger.info(f"Collection '{collection_name}' exists: {exists}")
         return exists
     except Exception as e:
@@ -128,10 +161,11 @@ def generate_vector_index(
     if sparse_embedding is None:
         # Qdrant/bm42-all-minilm-l6-v2-attentions
         sparse_embedding = FastEmbedSparse(model_name="prithivida/Splade_PP_en_v1")
-    client = QdrantClient(url=url, port=port, https=True, timeout=300)
+    client = _create_qdrant_client(url=url, port=port)
     # client = QdrantClient(":memory:")
-    logger.info(f"collection exist: {client.collection_exists(collection_name)}")
-    if client.collection_exists(collection_name):
+    collection_exists = _collection_exists_with_retry(client, collection_name)
+    logger.info(f"collection exist: {collection_exists}")
+    if collection_exists:
         vector_count = get_collection_vectors(client, collection_name=collection_name)
     else:
         vector_count = 0
@@ -145,7 +179,7 @@ def generate_vector_index(
             batch_size=64,
             url=url,
             port=port,
-            https=True,
+            https=QDRANT_HTTPS,
             vector_name="omop_dense_vector",
             sparse_vector_name="omop_sparse_vector",
             sparse_embedding=sparse_embedding,
