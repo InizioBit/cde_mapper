@@ -1,0 +1,30 @@
+{
+  "input": "d:\\Program\\cde_mapper_anie\\data\\output\\baseline\\baseline-gemma3n-stage0-reranked.jsonl",
+  "query_count": 10,
+  "coverage": 1.0,
+  "query_failure_rate": 0.0,
+  "partial_source_error_rate": 1.0,
+  "mrr": 0.6342857142857142,
+  "latency_ms": {
+    "mean": 4220.729,
+    "p50": 3888.829,
+    "p95": 6573.889599999997,
+    "max": 7559.44
+  },
+  "accuracy@1": 0.5,
+  "precision@1": 0.5,
+  "recall@1": 0.5,
+  "ndcg@1": 0.5,
+  "accuracy@3": 0.7,
+  "precision@3": 0.2333333333333333,
+  "recall@3": 0.7,
+  "ndcg@3": 0.6261859507142915,
+  "accuracy@5": 0.8,
+  "precision@5": 0.15999999999999998,
+  "recall@5": 0.8,
+  "ndcg@5": 0.6648712314377457,
+  "accuracy@10": 0.9,
+  "precision@10": 0.09,
+  "recall@10": 0.9,
+  "ndcg@10": 0.6982045647710791
+}
