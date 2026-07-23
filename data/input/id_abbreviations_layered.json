@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "language": "id",
+  "purpose": "Kamus master singkatan untuk normalisasi teks konsultasi klinis Bahasa Indonesia.",
+  "runtime_dictionary": "data/input/id_abbreviations.json",
+  "policy": {
+    "automatic": "Boleh diperluas jika cocok sebagai token utuh dan tidak berada di dalam nama obat, URL, atau kode.",
+    "context_required": "Hanya diperluas setelah tipe konteks cocok; jika konteks tidak cukup, pertahankan bentuk asli.",
+    "review_required": "Belum boleh diterapkan otomatis sebelum validasi ahli bahasa atau klinisi.",
+    "case_sensitive": "Kapitalisasi wajib dipertimbangkan untuk membedakan singkatan klinis dari kata umum atau satuan."
+  },
+  "layers": {
+    "medical_clinical": [
+      {"abbr": "DM", "expansion": "diabetes melitus", "status": "automatic", "context": ["diagnosis", "riwayat penyakit"]},
+      {"abbr": "GDP", "expansion": "gula darah puasa", "status": "automatic", "context": ["laboratorium", "glukosa"]},
+      {"abbr": "GDPP", "expansion": "gula darah postprandial", "status": "automatic", "context": ["laboratorium", "glukosa"]},
+      {"abbr": "GD2PP", "expansion": "gula darah 2 jam postprandial", "status": "automatic", "context": ["laboratorium", "glukosa"]},
+      {"abbr": "GDS", "expansion": "gula darah sewaktu", "status": "automatic", "context": ["laboratorium", "glukosa"]},
+      {"abbr": "Hb", "expansion": "hemoglobin", "status": "automatic", "context": ["laboratorium"]},
+      {"abbr": "HT", "expansion": "hipertensi", "status": "automatic", "context": ["diagnosis", "riwayat penyakit"]},
+      {"abbr": "ISK", "expansion": "infeksi saluran kemih", "status": "automatic", "context": ["diagnosis", "keluhan"]},
+      {"abbr": "N", "expansion": "nadi", "status": "context_required", "context": ["angka", "x/menit", "tanda vital"]},
+      {"abbr": "RR", "expansion": "frekuensi napas", "status": "context_required", "context": ["angka", "x/menit", "tanda vital"]},
+      {"abbr": "SpO2", "expansion": "saturasi oksigen", "status": "automatic", "context": ["angka", "%", "tanda vital"]},
+      {"abbr": "TD", "expansion": "tekanan darah", "status": "automatic", "context": ["angka sistolik/diastolik", "tanda vital"]},
+      {"abbr": "TDD", "expansion": "tekanan darah diastolik", "status": "automatic", "context": ["tanda vital"]},
+      {"abbr": "TDS", "expansion": "tekanan darah sistolik", "status": "automatic", "context": ["tanda vital"]},
+      {"abbr": "temp", "expansion": "suhu tubuh", "status": "context_required", "context": ["angka", "derajat", "tanda vital"]},
+      {"abbr": "tensi", "expansion": "tekanan darah", "status": "automatic", "context": ["tanda vital"]},
+      {"abbr": "USG", "expansion": "ultrasonografi", "status": "automatic", "context": ["pemeriksaan", "kehamilan"]}
+    ],
+    "maternal_child_health": [
+      {"abbr": "ASI", "expansion": "air susu ibu", "status": "automatic", "context": ["bayi", "menyusui"]},
+      {"abbr": "HPHT", "expansion": "hari pertama haid terakhir", "status": "automatic", "context": ["kehamilan", "menstruasi"]},
+      {"abbr": "HPL", "expansion": "hari perkiraan lahir", "status": "automatic", "context": ["kehamilan"]},
+      {"abbr": "KB", "expansion": "keluarga berencana", "status": "context_required", "context": ["kontrasepsi", "kehamilan"]}
+    ],
+    "body_function_and_measurement": [
+      {"abbr": "BAB", "expansion": "buang air besar", "status": "automatic", "context": ["pencernaan", "feses"]},
+      {"abbr": "BAK", "expansion": "buang air kecil", "status": "automatic", "context": ["kemih", "urine"]},
+      {"abbr": "BB", "expansion": "berat badan", "status": "context_required", "context": ["angka", "kg", "antropometri"]},
+      {"abbr": "TB", "expansion": "tinggi badan", "status": "context_required", "context": ["angka", "cm", "antropometri"], "warning": "Dapat berarti tuberkulosis pada konteks diagnosis."}
+    ],
+    "clinical_documentation": [
+      {"abbr": "Px", "expansion": "pasien", "status": "context_required", "context": ["subjek pasien"], "warning": "Dalam sebagian dokumen klinis dapat berarti pemeriksaan."},
+      {"abbr": "riw", "expansion": "riwayat", "status": "automatic", "context": ["riwayat penyakit"]}
+    ],
+    "informal_conversation": [
+      {"abbr": "bgt", "expansion": "banget", "status": "automatic"},
+      {"abbr": "blm", "expansion": "belum", "status": "automatic"},
+      {"abbr": "dg", "expansion": "dengan", "status": "automatic"},
+      {"abbr": "dgn", "expansion": "dengan", "status": "automatic"},
+      {"abbr": "dktr", "expansion": "dokter", "status": "automatic"},
+      {"abbr": "dok", "expansion": "dokter", "status": "automatic"},
+      {"abbr": "doktr", "expansion": "dokter", "status": "automatic"},
+      {"abbr": "ga", "expansion": "tidak", "status": "automatic"},
+      {"abbr": "gak", "expansion": "tidak", "status": "automatic"},
+      {"abbr": "gpp", "expansion": "tidak apa-apa", "status": "automatic"},
+      {"abbr": "kalo", "expansion": "kalau", "status": "automatic"},
+      {"abbr": "karna", "expansion": "karena", "status": "automatic"},
+      {"abbr": "kira2", "expansion": "kira-kira", "status": "automatic"},
+      {"abbr": "knp", "expansion": "kenapa", "status": "automatic"},
+      {"abbr": "mlm", "expansion": "malam", "status": "automatic"},
+      {"abbr": "ngga", "expansion": "tidak", "status": "automatic"},
+      {"abbr": "nggak", "expansion": "tidak", "status": "automatic"},
+      {"abbr": "sampe", "expansion": "sampai", "status": "automatic"},
+      {"abbr": "sdg", "expansion": "sedang", "status": "automatic"},
+      {"abbr": "skrg", "expansion": "sekarang", "status": "automatic"},
+      {"abbr": "slmt", "expansion": "selamat", "status": "automatic"},
+      {"abbr": "sy", "expansion": "saya", "status": "automatic"},
+      {"abbr": "tdk", "expansion": "tidak", "status": "automatic"},
+      {"abbr": "th", "expansion": "tahun", "status": "context_required", "context": ["usia", "durasi"]},
+      {"abbr": "tp", "expansion": "tetapi", "status": "automatic"},
+      {"abbr": "tsb", "expansion": "tersebut", "status": "automatic"},
+      {"abbr": "udah", "expansion": "sudah", "status": "automatic"},
+      {"abbr": "yg", "expansion": "yang", "status": "automatic"}
+    ],
+    "ambiguous_not_automatic": [
+      {"abbr": "dr", "candidates": ["dari", "dokter"], "status": "context_required", "warning": "Jangan dimasukkan ke kamus runtime sebelum tersedia disambiguasi konteks."},
+      {"abbr": "mg", "candidates": ["miligram", "minggu"], "status": "context_required", "warning": "Bedakan satuan dosis dari durasi berdasarkan angka dan konteks."},
+      {"abbr": "hr", "candidates": ["hari", "denyut jantung"], "status": "context_required"},
+      {"abbr": "PCOS", "expansion": "sindrom ovarium polikistik", "status": "review_required"},
+      {"abbr": "IMS", "expansion": "infeksi menular seksual", "status": "review_required"}
+    ]
+  },
+  "provenance": [
+    {
+      "source": "Riset/crawler_alodokter/hasil_crawl_alodokter_qa_pairs.json",
+      "scope": "150 pasangan question-answer; kandidat informal dipilih dari bentuk yang muncul pada pertanyaan."
+    },
+    {
+      "source": "Riset/Panduan_Komponen_NLP_Formatted.xlsx baris 8",
+      "scope": "Arahan penggunaan kamus singkatan medis."
+    },
+    {
+      "source": "seed_project",
+      "scope": "Entri awal dari data/input/id_abbreviations.json; perlu validasi ahli sebelum dipakai sebagai gold lexicon."
+    }
+  ]
+}

@@ -27,6 +27,7 @@ from rag.vector_index import (
 from rag.utils import append_results_to_csv, global_logger as logger
 
 from rag.data_loader import load_data
+from rag.id_preprocess import normalize_queries
 # import asyncio
 import signal
 import sys
@@ -59,6 +60,9 @@ if __name__ == "__main__":
     parser.add_argument('--flag', type=str, required=True,  default='inference', help='Flag to recreate , update or inference')
     parser.add_argument('--document_file_path', type=str, required=False, help='For recreate or update documents-add in data directory')
     parser.add_argument('--embedding_type', type=str, default= 'hier', required=False, help='For recreate or update documents-add in data directory')
+    parser.add_argument('--normalize_id', action='store_true', help='Normalize Indonesian clinical input before retrieval')
+    parser.add_argument('--normalization_profile', choices=['clinical', 'question', 'answer'], default='clinical', help='Indonesian normalization profile')
+    parser.add_argument('--normalization_resource_dir', default='data/input', help='Directory containing Indonesian normalization dictionaries')
     
     logger.info("Parsing arguments...")
     start_time = datetime.now()
@@ -71,6 +75,12 @@ if __name__ == "__main__":
         output_file = args.output_file 
     logger.info(f"Using output file: {output_file}")
     data,mapped_flag = load_data(args.input_file, load_custom=args.custom_data)
+    if args.normalize_id and data:
+        data = normalize_queries(
+            data,
+            resource_dir=args.normalization_resource_dir,
+            profile=args.normalization_profile,
+        )
     if mapped_flag:
         raise Warning("Input data is already mapped, please provide raw data for retrieval.")
     else:

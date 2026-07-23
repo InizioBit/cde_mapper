@@ -179,14 +179,20 @@ Status implementasi Tahap 0:
 
 Tujuan: mengubah teks klinis Bahasa Indonesia mentah menjadi teks bersih dan standar.
 
-Pekerjaan:
+Urutan pekerjaan yang diperbaiki:
 
-- buat modul baru `rag/id_preprocess.py`;
-- implementasi pembersihan teks, segmentasi kalimat, normalisasi simbol, angka, satuan, dan casing;
-- tambahkan kamus singkatan medis lokal, misalnya `DM -> diabetes melitus`, `TD -> tekanan darah`, `GDP -> gula darah puasa`, `Px -> pasien`;
-- tambahkan koreksi typo/ejaan tidak baku berbasis kamus dan fuzzy matching;
-- evaluasi opsi stemming Bahasa Indonesia dengan Sastrawi secara hati-hati, karena istilah klinis tidak selalu aman untuk distemming;
-- simpan hasil normalisasi sebagai artefak audit agar perubahan teks dapat ditelusuri.
+1. Profilkan korpus secara terpisah untuk `question` dan `answer`. Inventarisasi singkatan, bentuk informal, typo, angka, dosis, satuan, nama obat, negasi, serta boilerplate. Pertanyaan memakai profil normalisasi lebih aktif; jawaban dokter memakai profil konservatif.
+2. Tetapkan kontrak keluaran yang mempertahankan `raw_text`, menghasilkan `normalized_text`, dan mencatat `normalization_changes`, `warnings`, serta versi kamus. Perubahan harus idempotent dan dapat diaudit.
+3. Bangun kamus master berlapis **sebelum ekspansi singkatan diaktifkan**. Lapisan minimal mencakup singkatan klinis, kesehatan ibu-anak, fungsi tubuh/pengukuran, dokumentasi klinis, dan percakapan informal. Setiap entri memuat bentuk singkat, ekspansi, status (`automatic`, `context_required`, atau `review_required`), konteks, dan peringatan ambiguitas.
+4. Turunkan kamus runtime hanya dari entri yang aman. Entri ambigu seperti `dr` (`dari`/`dokter`), `mg` (`miligram`/`minggu`), `TB` (`tinggi badan`/`tuberkulosis`), `BB`, dan `Px` tidak boleh diperluas otomatis tanpa aturan konteks. Kamus master disimpan di `data/input/id_abbreviations_layered.json`, sedangkan kamus runtime kompatibel disimpan di `data/input/id_abbreviations.json`.
+5. Lakukan validasi kamus dalam dua tahap: validasi berbasis korpus untuk frekuensi dan contoh pemakaian, kemudian validasi ahli bahasa/klinisi untuk ekspansi dan ambiguitas. Entri baru masuk sebagai `review_required` dan baru dipromosikan setelah validasi.
+6. Implementasikan pembersihan konservatif dengan Regex dan opsi `text-normalization`: normalisasi Unicode, spasi, karakter kontrol, serta tanda baca berulang. Jangan menghapus angka, desimal, rentang, dosis, satuan, negasi, atau nama obat.
+7. Lindungi token klinis sebelum koreksi, termasuk nama obat, kode, angka, satuan, singkatan kapital, dan istilah campuran Indonesia-Inggris. Setelah itu lakukan normalisasi informal serta koreksi typo berbasis kamus. Fuzzy matching hanya menghasilkan kandidat jika confidence rendah dan tidak boleh langsung mengubah istilah klinis.
+8. Normalisasi angka dan satuan secara terpisah, misalnya `500mg -> 500 mg`, sambil menjaga nilai, rentang waktu, frekuensi, rasio tekanan darah, dan pemisah desimal.
+9. Lakukan segmentasi kalimat menggunakan `indo_text_segmentation` atau fallback rule-based setelah cleaning ringan dan ekspansi yang diperlukan untuk memperjelas batas kalimat.
+10. Tandai sapaan dan penutup jawaban sebagai boilerplate. Simpan teks lengkap untuk audit dan buat representasi tanpa boilerplate hanya untuk proses downstream; jangan menghapus negasi, ketidakpastian, atau diagnosis banding.
+11. Evaluasi Sastrawi sebagai fitur eksperimen untuk lexical retrieval, bukan transformasi default `normalized_text`, karena stemming dapat merusak istilah klinis dan label terminologi.
+12. Bentuk gold set terstratifikasi dan ukur abbreviation expansion accuracy, typo recovery rate, sentence-boundary F1, exact normalized match, serta preservation rate untuk angka, unit, obat, negasi, dan temporalitas. Lakukan error analysis per jenis transformasi.
 
 Integrasi kode:
 
@@ -196,17 +202,30 @@ Integrasi kode:
 Keluaran:
 
 - modul normalisasi;
-- kamus singkatan dan sinonim lokal;
+- kamus master singkatan berlapis beserta status validasi dan provenance;
+- kamus runtime berisi ekspansi yang aman;
+- daftar singkatan ambigu dan aturan konteks;
+- kamus typo, bentuk informal, sinonim lokal, dan satuan;
 - dataset uji kecil berisi input-output normalisasi;
-- metrik intrinsic: exact normalized match, typo recovery rate, dan error analysis.
+- audit trail perubahan per teks;
+- metrik intrinsic: exact normalized match, abbreviation expansion accuracy, typo recovery rate, sentence-boundary F1, clinical-information preservation rate, dan error analysis.
 
 Status implementasi Tahap 1:
 
-- modul normalisasi deterministik dibuat di `rag/id_preprocess.py`;
+- modul normalisasi deterministik berprofil `clinical`, `question`, dan `answer` dibuat di `rag/id_preprocess.py`;
 - kamus awal singkatan medis lokal dibuat di `data/input/id_abbreviations.json`;
+- kamus master berlapis dengan metadata, status, konteks, ambiguitas, dan provenance dibuat di `data/input/id_abbreviations_layered.json`;
 - kamus koreksi typo/ejaan tidak baku dibuat di `data/input/id_typos.json`;
 - kamus normalisasi satuan dibuat di `data/input/id_units.json`;
 - dataset uji kecil input-output normalisasi dibuat di `data/gold/id_normalization_gold.jsonl`;
+- cleaning Unicode, tanda baca, spasi, preservasi desimal, normalisasi satuan, dan segmentasi kalimat deterministik sudah diimplementasikan;
+- ekspansi singkatan `automatic` dan `context_required` sudah dibedakan; singkatan ambigu dipertahankan beserta warning ketika konteks tidak cukup;
+- audit trail mencatat langkah, perubahan token, jumlah penggantian, warning, boilerplate, versi normalizer, dan versi resource;
+- sapaan dan penutup jawaban ditandai sebagai boilerplate tanpa menghapus teks lengkap;
+- integrasi opt-in ke entry point tersedia melalui `--normalize_id`, `--normalization_profile`, dan `--normalization_resource_dir`;
+- runner korpus Alodokter dibuat di `scripts/preprocess_alodokter.py`;
+- artefak 150 pasangan hasil normalisasi dibuat di `Riset/crawler_alodokter/hasil_normalisasi_tahap_1.jsonl`;
+- tujuh unit test preservasi dan perilaku normalizer dibuat di `tests/test_id_preprocess.py`;
 - audit intrinsic dibuat di `scripts/audit_id_preprocess.py`;
 - wrapper WSL conda env `cde-mapper` dibuat di `scripts/audit_id_preprocess_wsl.sh`;
 - laporan Tahap 1 dibuat di `Riset/LAPORAN_TAHAP_1_NORMALISASI.md`;
