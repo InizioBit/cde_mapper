@@ -54,28 +54,29 @@ def main() -> int:
 
     normalizer = IndonesianClinicalNormalizer.from_resource_dir(args.resource_dir)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_rows: list[dict] = []
     totals = {
         "records": 0,
         "question_changes": 0,
         "answer_changes": 0,
         "warnings": 0,
     }
-    with output_path.open("w", encoding="utf-8", newline="\n") as handle:
-        for index, row in enumerate(rows, start=1):
-            question = row.get("question") or {}
-            answer = row.get("answer") or {}
-            question_text = question.get("raw_text") or question.get("clean_text") or ""
-            answer_text = answer.get("raw_text") or answer.get("clean_text") or ""
-            question_result = normalizer.normalize(
-                question_text, audit=True, profile="question"
-            )
-            answer_result = normalizer.normalize(
-                answer_text, audit=True, profile="answer"
-            )
-            record_id = hashlib.sha256(
-                str(row.get("url") or index).encode("utf-8")
-            ).hexdigest()[:16]
-            payload = {
+    for index, row in enumerate(rows, start=1):
+        question = row.get("question") or {}
+        answer = row.get("answer") or {}
+        question_text = question.get("raw_text") or question.get("clean_text") or ""
+        answer_text = answer.get("raw_text") or answer.get("clean_text") or ""
+        question_result = normalizer.normalize(
+            question_text, audit=True, profile="question"
+        )
+        answer_result = normalizer.normalize(
+            answer_text, audit=True, profile="answer"
+        )
+        record_id = hashlib.sha256(
+            str(row.get("url") or index).encode("utf-8")
+        ).hexdigest()[:16]
+        output_rows.append(
+            {
                 "record_id": record_id,
                 "source": row.get("source"),
                 "url": row.get("url"),
@@ -83,12 +84,22 @@ def main() -> int:
                 "question": _result_payload(question_result),
                 "answer": _result_payload(answer_result),
             }
-            handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
-            totals["records"] += 1
-            totals["question_changes"] += len(question_result.changes)
-            totals["answer_changes"] += len(answer_result.changes)
-            totals["warnings"] += len(question_result.warnings)
-            totals["warnings"] += len(answer_result.warnings)
+        )
+        totals["records"] += 1
+        totals["question_changes"] += len(question_result.changes)
+        totals["answer_changes"] += len(answer_result.changes)
+        totals["warnings"] += len(question_result.warnings)
+        totals["warnings"] += len(answer_result.warnings)
+
+    if output_path.suffix.casefold() == ".json":
+        output_path.write_text(
+            json.dumps(output_rows, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        with output_path.open("w", encoding="utf-8", newline="\n") as handle:
+            for payload in output_rows:
+                handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
     print(json.dumps({"ok": True, "output_file": str(output_path), **totals}, indent=2))
     return 0

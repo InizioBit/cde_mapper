@@ -1,0 +1,62 @@
+[
+  {
+    "source": "alodokter",
+    "source_type": "public_health_consultation",
+    "url": "https://contoh.local/konsultasi/normalisasi-001",
+    "title": "Keluhan infeksi saluran kemih dan penggunaan obat",
+    "category": "penyakit",
+    "question": {
+      "raw_text": "Assalammualaikum dktr.slmt mlmSy pria usia 33 th, punya riw ISK, skrg sy sdg kambuh..dan blm minum obat 500mg. Dok, kira2 berbahaya ngga?",
+      "clean_text": "Assalammualaikum dktr.slmt mlmSy pria usia 33 th, punya riw ISK, skrg sy sdg kambuh..dan blm minum obat 500mg. Dok, kira2 berbahaya ngga?",
+      "asked_at": null
+    },
+    "answer": {
+      "raw_text": "Alo, infeksi saluran kemih perlu dipastikan melalui pemeriksaan dokter. Jika saat ini tidak demam dan tidak nyeri pinggang, kondisi tetap perlu dipantau. Sebaiknya konsultasikan obat dan dosisnya kepada dokter. Semoga bermanfaat.",
+      "clean_text": "Alo, infeksi saluran kemih perlu dipastikan melalui pemeriksaan dokter. Jika saat ini tidak demam dan tidak nyeri pinggang, kondisi tetap perlu dipantau. Sebaiknya konsultasikan obat dan dosisnya kepada dokter. Semoga bermanfaat.",
+      "answered_at_date": "2026-01-01",
+      "answered_at_time": "08:00",
+      "doctor_name": "dr. Contoh",
+      "doctor_role": "Dokter"
+    }
+  },
+  {
+    "source": "alodokter",
+    "source_type": "public_health_consultation",
+    "url": "https://contoh.local/konsultasi/normalisasi-002",
+    "title": "Hasil pengukuran dan keluhan pasien",
+    "category": "penyakit",
+    "question": {
+      "raw_text": "BB 70 kg, TB 165 cm, TD 160 / 100 mmhg, spo2 95 %. Sy tdk demam, tp kepala pusing sejak 2 hari.",
+      "clean_text": "BB 70 kg, TB 165 cm, TD 160 / 100 mmhg, spo2 95 %. Sy tdk demam, tp kepala pusing sejak 2 hari.",
+      "asked_at": null
+    },
+    "answer": {
+      "raw_text": "Halo, tekanan darah 160/100 mmHg termasuk tinggi. Anda disarankan beristirahat dan melakukan pemeriksaan langsung, terutama jika nyeri kepala memberat atau muncul sesak. Demikian informasi yang dapat disampaikan.",
+      "clean_text": "Halo, tekanan darah 160/100 mmHg termasuk tinggi. Anda disarankan beristirahat dan melakukan pemeriksaan langsung, terutama jika nyeri kepala memberat atau muncul sesak. Demikian informasi yang dapat disampaikan.",
+      "answered_at_date": "2026-01-01",
+      "answered_at_time": "09:00",
+      "doctor_name": "dr. Contoh",
+      "doctor_role": "Dokter"
+    }
+  },
+  {
+    "source": "alodokter",
+    "source_type": "public_health_consultation",
+    "url": "https://contoh.local/konsultasi/normalisasi-003",
+    "title": "Contoh singkatan ambigu dan riwayat keluarga",
+    "category": "penyakit",
+    "question": {
+      "raw_text": "Ibu saya punya riwayat TB. Saya sendiri tidak batuk, BB 55kg dan TB 158cm. Apakah saya perlu cek?",
+      "clean_text": "Ibu saya punya riwayat TB. Saya sendiri tidak batuk, BB 55kg dan TB 158cm. Apakah saya perlu cek?",
+      "asked_at": null
+    },
+    "answer": {
+      "raw_text": "Hai, riwayat penyakit pada keluarga perlu disampaikan saat konsultasi. Tidak semua orang dengan kontak keluarga akan mengalami kondisi yang sama. Konsultasikan dengan dokter untuk menentukan pemeriksaan yang sesuai. Terima kasih.",
+      "clean_text": "Hai, riwayat penyakit pada keluarga perlu disampaikan saat konsultasi. Tidak semua orang dengan kontak keluarga akan mengalami kondisi yang sama. Konsultasikan dengan dokter untuk menentukan pemeriksaan yang sesuai. Terima kasih.",
+      "answered_at_date": "2026-01-01",
+      "answered_at_time": "10:00",
+      "doctor_name": "dr. Contoh",
+      "doctor_role": "Dokter"
+    }
+  }
+]
