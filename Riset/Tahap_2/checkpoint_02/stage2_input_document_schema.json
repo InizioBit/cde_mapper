@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "ProvenanceModel": {
+      "additionalProperties": false,
+      "properties": {
+        "input_index": {
+          "minimum": 1,
+          "title": "Input Index",
+          "type": "integer"
+        },
+        "stage": {
+          "minLength": 1,
+          "title": "Stage",
+          "type": "string"
+        },
+        "raw_text_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Text Sha256",
+          "type": "string"
+        },
+        "normalized_text_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Normalized Text Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input_index",
+        "stage",
+        "raw_text_sha256",
+        "normalized_text_sha256"
+      ],
+      "title": "ProvenanceModel",
+      "type": "object"
+    },
+    "SourceField": {
+      "enum": [
+        "question",
+        "answer"
+      ],
+      "title": "SourceField",
+      "type": "string"
+    },
+    "Speaker": {
+      "enum": [
+        "patient",
+        "doctor"
+      ],
+      "title": "Speaker",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Contract produced by Milestone A Checkpoint 1.",
+  "properties": {
+    "document_id": {
+      "minLength": 1,
+      "title": "Document Id",
+      "type": "string"
+    },
+    "parent_record_id": {
+      "minLength": 1,
+      "title": "Parent Record Id",
+      "type": "string"
+    },
+    "source_field": {
+      "$ref": "#/$defs/SourceField"
+    },
+    "speaker": {
+      "$ref": "#/$defs/Speaker"
+    },
+    "raw_text": {
+      "minLength": 1,
+      "title": "Raw Text",
+      "type": "string"
+    },
+    "normalized_text": {
+      "minLength": 1,
+      "title": "Normalized Text",
+      "type": "string"
+    },
+    "sentences": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sentences",
+      "type": "array"
+    },
+    "sentence_count": {
+      "minimum": 1,
+      "title": "Sentence Count",
+      "type": "integer"
+    },
+    "source": {
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    },
+    "url": {
+      "minLength": 1,
+      "title": "Url",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "normalization_profile": {
+      "$ref": "#/$defs/SourceField"
+    },
+    "normalizer_version": {
+      "minLength": 1,
+      "title": "Normalizer Version",
+      "type": "string"
+    },
+    "resource_version": {
+      "minLength": 1,
+      "title": "Resource Version",
+      "type": "string"
+    },
+    "normalization_warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Normalization Warnings",
+      "type": "array"
+    },
+    "provenance": {
+      "$ref": "#/$defs/ProvenanceModel"
+    },
+    "schema_version": {
+      "minLength": 1,
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "document_id",
+    "parent_record_id",
+    "source_field",
+    "speaker",
+    "raw_text",
+    "normalized_text",
+    "sentences",
+    "sentence_count",
+    "source",
+    "url",
+    "title",
+    "normalization_profile",
+    "normalizer_version",
+    "resource_version",
+    "provenance",
+    "schema_version"
+  ],
+  "title": "Stage2InputDocument",
+  "type": "object"
+}

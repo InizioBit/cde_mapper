@@ -1,0 +1,44 @@
+[
+  {
+    "case_id": "invalid-offset",
+    "base_example_id": "example-q1-negation",
+    "path": "entities.0.start_char",
+    "value": 0,
+    "expected_error": "mention-offset mismatch"
+  },
+  {
+    "case_id": "invalid-speaker",
+    "base_example_id": "example-q2-family",
+    "path": "entities.0.speaker",
+    "value": "doctor",
+    "expected_error": "speaker must be 'patient'"
+  },
+  {
+    "case_id": "invalid-sentence-id",
+    "base_example_id": "example-q3-measurement",
+    "path": "entities.0.sentence_id",
+    "value": 9,
+    "expected_error": "sentence_id is outside sentences"
+  },
+  {
+    "case_id": "invalid-confidence",
+    "base_example_id": "example-q4-drug",
+    "path": "entities.0.confidence",
+    "value": 1.5,
+    "expected_error": "less than or equal to 1"
+  },
+  {
+    "case_id": "duplicate-entity-id",
+    "base_example_id": "example-q5-procedure-anatomy",
+    "path": "entities.1.entity_id",
+    "value": "schema-q5-e1",
+    "expected_error": "duplicate entity_id"
+  },
+  {
+    "case_id": "invalid-evidence",
+    "base_example_id": "example-q6-demographic-visit",
+    "path": "entities.0.evidence",
+    "value": "teks tanpa mention",
+    "expected_error": "mention must occur in evidence"
+  }
+]

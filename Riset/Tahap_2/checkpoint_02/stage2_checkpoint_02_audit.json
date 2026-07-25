@@ -1,0 +1,157 @@
+{
+  "checkpoint": "milestone_a_checkpoint_02",
+  "schema_version": "1.0.0",
+  "generated_at_utc": "2026-07-25T05:07:43.661139+00:00",
+  "status": "pass",
+  "inputs": {
+    "checkpoint_01": {
+      "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_01\\stage2_checkpoint_01_input.jsonl",
+      "sha256": "e26954f1583465a7663fa3960ee053945a6833e532921a135faa214941f6469f"
+    },
+    "examples": {
+      "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_02\\stage2_schema_examples.jsonl",
+      "sha256": "76d050d8769a5726752b7e4fea7cbd62cd8cf67d21870e1a77b580127bafdcba"
+    },
+    "invalid_examples": {
+      "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_02\\stage2_schema_invalid_examples.json",
+      "sha256": "c0e56b76edd1c8bd299fa2532d5f16bbae2c31e3abfcf2bea855e3fe94ad7f5b"
+    },
+    "guideline": {
+      "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_02\\stage2_annotation_guideline.md",
+      "sha256": "c29b3484e19cce4482f5fd13c2e16a98bebe9b6d5651a28be67ece59e5472542"
+    }
+  },
+  "outputs": {
+    "input_schema": {
+      "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_02\\stage2_input_document_schema.json",
+      "sha256": "a6943a6c79f76c8cf614fda5b2719cfd702338930ec2a7974484ead32485a129"
+    },
+    "entity_schema": {
+      "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_02\\stage2_entity_extraction_schema.json",
+      "sha256": "51b37826f0e3a3c2457169141f6884a2ad45ef75f47afd45efcfd16a33f1d85e"
+    }
+  },
+  "checkpoint_01_validation": {
+    "valid_documents": 300,
+    "counts": {
+      "source:answer": 150,
+      "source:question": 150,
+      "speaker:doctor": 150,
+      "speaker:patient": 150
+    },
+    "failures": []
+  },
+  "positive_examples": {
+    "total": 9,
+    "failures": []
+  },
+  "negative_examples": {
+    "total": 6,
+    "correctly_rejected": 6,
+    "passed_cases": [
+      {
+        "case_id": "invalid-offset",
+        "expected_error": "mention-offset mismatch"
+      },
+      {
+        "case_id": "invalid-speaker",
+        "expected_error": "speaker must be 'patient'"
+      },
+      {
+        "case_id": "invalid-sentence-id",
+        "expected_error": "sentence_id is outside sentences"
+      },
+      {
+        "case_id": "invalid-confidence",
+        "expected_error": "less than or equal to 1"
+      },
+      {
+        "case_id": "duplicate-entity-id",
+        "expected_error": "duplicate entity_id"
+      },
+      {
+        "case_id": "invalid-evidence",
+        "expected_error": "mention must occur in evidence"
+      }
+    ],
+    "failures": []
+  },
+  "coverage": {
+    "counts": {
+      "assertion:hypothetical": 2,
+      "assertion:negated": 1,
+      "assertion:present": 11,
+      "assertion:uncertain": 2,
+      "entity_type:anatomy": 2,
+      "entity_type:clinical_finding": 1,
+      "entity_type:condition": 2,
+      "entity_type:demographic": 2,
+      "entity_type:drug": 1,
+      "entity_type:measurement": 1,
+      "entity_type:procedure": 2,
+      "entity_type:symptom": 3,
+      "entity_type:unit": 1,
+      "entity_type:visit": 1,
+      "epistemic:conditional": 1,
+      "epistemic:differential_diagnosis": 1,
+      "epistemic:general_information": 1,
+      "epistemic:patient_fact": 12,
+      "epistemic:recommended": 1,
+      "experiencer:family": 1,
+      "experiencer:patient": 15,
+      "source:answer": 2,
+      "source:question": 7,
+      "speaker:doctor": 2,
+      "speaker:patient": 7,
+      "temporal:future": 2,
+      "temporal:past": 2,
+      "temporal:present": 9,
+      "temporal:unknown": 3
+    },
+    "covered_entity_types": [
+      "anatomy",
+      "clinical_finding",
+      "condition",
+      "demographic",
+      "drug",
+      "measurement",
+      "procedure",
+      "symptom",
+      "unit",
+      "visit"
+    ],
+    "missing_core_entity_types": [],
+    "source_fields": [
+      "answer",
+      "question"
+    ],
+    "assertions": [
+      "hypothetical",
+      "negated",
+      "present",
+      "uncertain"
+    ],
+    "experiencers": [
+      "family",
+      "patient"
+    ]
+  },
+  "guideline": {
+    "characters": 7898,
+    "lines": 464,
+    "level_2_sections": 20,
+    "missing_required_sections": []
+  },
+  "exit_criteria": {
+    "checkpoint_01_all_documents_valid": true,
+    "positive_examples_available": true,
+    "all_positive_examples_valid": true,
+    "all_negative_examples_rejected": true,
+    "core_entity_types_covered": true,
+    "question_and_answer_examples_available": true,
+    "assertion_examples_cover_context": true,
+    "experiencer_examples_cover_patient_and_family": true,
+    "guideline_required_sections_available": true,
+    "json_schemas_exported": true
+  }
+}
