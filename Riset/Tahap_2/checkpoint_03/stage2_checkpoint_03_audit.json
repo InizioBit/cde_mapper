@@ -1,0 +1,43 @@
+{
+  "checkpoint": "Milestone A - Checkpoint 3",
+  "generated_at": "2026-07-25T06:17:44.587331+00:00",
+  "status": "pending_annotation",
+  "gold_status": "not_created_pending_clinical_adjudication",
+  "task_counts": {
+    "expected": 40,
+    "annotator_a_rows": 40,
+    "annotator_b_rows": 40,
+    "completed_annotator_a": 0,
+    "completed_annotator_b": 0,
+    "completed_by_both": 0,
+    "valid_comparable_tasks": 0
+  },
+  "agreement": {
+    "entity_key": [
+      "start_char",
+      "end_char",
+      "entity_type"
+    ],
+    "micro_exact_span_type_f1": null,
+    "macro_exact_span_type_f1": null,
+    "attribute_agreement_on_matched_entities": {
+      "normalized_mention": null,
+      "base_entity": null,
+      "domain": null,
+      "value": null,
+      "unit": null,
+      "dose": null,
+      "frequency": null,
+      "route": null,
+      "assertion": null,
+      "temporal": null,
+      "experiencer": null,
+      "sentence_id": null,
+      "epistemic_status": null
+    },
+    "disagreement_records": 0
+  },
+  "structural_errors": [],
+  "schema_errors": [],
+  "next_action": "Isi kedua berkas anotator secara independen dan ubah status menjadi complete."
+}
