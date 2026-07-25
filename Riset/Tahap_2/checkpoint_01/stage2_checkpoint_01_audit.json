@@ -1,0 +1,48 @@
+{
+  "checkpoint": "milestone_a_checkpoint_01",
+  "schema_version": "1.0.0",
+  "generated_at_utc": "2026-07-25T04:40:11.122815+00:00",
+  "status": "pass",
+  "input": {
+    "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\crawler_alodokter\\hasil_normalisasi_tahap_1.jsonl",
+    "sha256": "2514eb7aa5ab3d6600e08e3359b0ba50c02954ccf4fce7fd11717017b79253e8",
+    "format": "jsonl"
+  },
+  "output": {
+    "path": "D:\\Disertasi_Pipeline\\cde_mapper\\Riset\\Tahap_2\\checkpoint_01\\stage2_checkpoint_01_input.jsonl",
+    "sha256": "e26954f1583465a7663fa3960ee053945a6833e532921a135faa214941f6469f",
+    "format": "jsonl"
+  },
+  "record_counts": {
+    "input_records": 150,
+    "expected_input_records": 150,
+    "output_documents": 300,
+    "expected_output_documents": 300,
+    "question_documents": 150,
+    "answer_documents": 150
+  },
+  "speaker_counts": {
+    "doctor": 150,
+    "patient": 150
+  },
+  "issue_counts": {},
+  "duplicate_document_ids": [],
+  "duplicate_input_record_ids": [],
+  "invalid_parent_document_counts": [],
+  "exit_criteria": {
+    "expected_input_record_count": true,
+    "all_records_converted": true,
+    "question_count_matches_input": true,
+    "answer_count_matches_input": true,
+    "all_document_ids_unique": true,
+    "all_input_record_ids_unique": true,
+    "each_parent_has_question_and_answer": true,
+    "all_normalized_text_nonempty": true,
+    "all_raw_text_available": true,
+    "all_profiles_match_source": true,
+    "all_sentences_traceable": true,
+    "all_source_sections_available": true
+  },
+  "passed": true,
+  "issues": []
+}
