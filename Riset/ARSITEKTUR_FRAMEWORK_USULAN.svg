@@ -1,0 +1,299 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1350" viewBox="0 0 2000 1350">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#EEF4F8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#334155"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#15803D"/>
+    </marker>
+    <style>
+      .title { font: 700 34px 'Segoe UI', Arial, sans-serif; fill: #0F172A; }
+      .subtitle { font: 400 17px 'Segoe UI', Arial, sans-serif; fill: #475569; }
+      .bandtitle { font: 700 17px 'Segoe UI', Arial, sans-serif; letter-spacing: 1.2px; }
+      .stageTitle { font: 700 20px 'Segoe UI', Arial, sans-serif; fill: #FFFFFF; }
+      .body { font: 400 15px 'Segoe UI', Arial, sans-serif; fill: #1E293B; }
+      .bodySmall { font: 400 14px 'Segoe UI', Arial, sans-serif; fill: #334155; }
+      .strong { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #0F172A; }
+      .smallWhite { font: 600 14px 'Segoe UI', Arial, sans-serif; fill: #FFFFFF; }
+      .number { font: 800 21px 'Segoe UI', Arial, sans-serif; fill: #FFFFFF; }
+      .pill { font: 600 13px 'Segoe UI', Arial, sans-serif; }
+      .arrowLabel { font: 600 13px 'Segoe UI', Arial, sans-serif; fill: #475569; }
+      .stage { filter: url(#shadow); }
+    </style>
+  </defs>
+
+  <rect width="2000" height="1350" fill="url(#bg)"/>
+
+  <!-- Header -->
+  <text x="70" y="63" class="title">Arsitektur Framework Adaptif Pemetaan Terminologi Klinis Bahasa Indonesia</text>
+  <text x="70" y="94" class="subtitle">Long-text multi-entity extraction • Multi-terminology routing • Hybrid retrieval • Human-in-the-loop</text>
+  <rect x="1675" y="43" width="255" height="48" rx="24" fill="#0F766E"/>
+  <text x="1802" y="73" text-anchor="middle" class="smallWhite">Audit-ready architecture</text>
+
+  <!-- Stage 0 / governance -->
+  <rect x="70" y="125" width="1860" height="92" rx="18" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5"/>
+  <circle cx="116" cy="171" r="27" fill="#475569"/>
+  <text x="116" y="179" text-anchor="middle" class="number">0</text>
+  <text x="158" y="161" class="strong">Baseline, reproducibility, dan tata kelola eksperimen</text>
+  <text x="158" y="188" class="bodySmall">Konfigurasi berversi • dependency snapshot • manifest run • hash data • logging • baseline metrics • pemisahan development/few-shot/hold-out</text>
+  <rect x="1590" y="147" width="145" height="42" rx="21" fill="#FFFFFF" stroke="#94A3B8"/>
+  <text x="1662" y="173" text-anchor="middle" class="pill" fill="#475569">PROVENANCE</text>
+  <rect x="1750" y="147" width="145" height="42" rx="21" fill="#FFFFFF" stroke="#94A3B8"/>
+  <text x="1822" y="173" text-anchor="middle" class="pill" fill="#475569">VERSIONING</text>
+
+  <!-- Layer 1 -->
+  <rect x="70" y="245" width="1860" height="365" rx="22" fill="#ECFDF5" stroke="#86C5A3" stroke-width="1.5"/>
+  <text x="98" y="279" class="bandtitle" fill="#166534">LAPISAN A · PEMAHAMAN TEKS DAN PEMBENTUKAN QUERY KLINIS</text>
+
+  <!-- Input -->
+  <rect x="94" y="319" width="210" height="225" rx="18" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="199" y="357" text-anchor="middle" class="strong">INPUT</text>
+  <line x1="119" y1="372" x2="279" y2="372" stroke="#CBD5E1"/>
+  <text x="119" y="405" class="body">• Teks klinis panjang</text>
+  <text x="119" y="434" class="body">• Data dictionary RME</text>
+  <text x="119" y="463" class="body">• Istilah ID–EN</text>
+  <text x="119" y="492" class="body">• Singkatan &amp; typo</text>
+  <rect x="119" y="510" width="160" height="24" rx="12" fill="#F1F5F9"/>
+  <text x="199" y="527" text-anchor="middle" class="pill" fill="#475569">raw_text + metadata</text>
+
+  <!-- Stage 1 -->
+  <g class="stage">
+    <rect x="350" y="310" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#16A34A" stroke-width="2"/>
+    <rect x="350" y="310" width="340" height="61" rx="19" fill="#15803D"/>
+    <rect x="350" y="347" width="340" height="24" fill="#15803D"/>
+    <circle cx="386" cy="341" r="22" fill="#0F5D2B"/>
+    <text x="386" y="349" text-anchor="middle" class="number">1</text>
+    <text x="420" y="338" class="stageTitle">Normalisasi Bahasa</text>
+    <text x="420" y="360" class="smallWhite">Indonesia — konservatif</text>
+    <text x="376" y="406" class="body">• Unicode &amp; cleaning</text>
+    <text x="376" y="434" class="body">• Singkatan kontekstual</text>
+    <text x="376" y="462" class="body">• Typo, angka, satuan</text>
+    <text x="376" y="490" class="body">• Segmentasi kalimat</text>
+    <text x="376" y="518" class="body">• Boilerplate + audit trail</text>
+    <rect x="500" y="528" width="164" height="24" rx="12" fill="#DCFCE7"/>
+    <text x="582" y="545" text-anchor="middle" class="pill" fill="#166534">normalized_text</text>
+  </g>
+
+  <!-- Stage 2 -->
+  <g class="stage">
+    <rect x="742" y="310" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#0D9488" stroke-width="2"/>
+    <rect x="742" y="310" width="340" height="61" rx="19" fill="#0F766E"/>
+    <rect x="742" y="347" width="340" height="24" fill="#0F766E"/>
+    <circle cx="778" cy="341" r="22" fill="#115E59"/>
+    <text x="778" y="349" text-anchor="middle" class="number">2</text>
+    <text x="812" y="338" class="stageTitle">Ekstraksi Entitas Klinis</text>
+    <text x="812" y="360" class="smallWhite">LLM / NER / rules fallback</text>
+    <text x="768" y="406" class="body">• Multi-entitas per dokumen</text>
+    <text x="768" y="434" class="body">• Span, tipe, evidence</text>
+    <text x="768" y="462" class="body">• Assertion &amp; temporal</text>
+    <text x="768" y="490" class="body">• Experiencer &amp; epistemic</text>
+    <text x="768" y="518" class="body">• Pydantic validation</text>
+    <rect x="900" y="528" width="156" height="24" rx="12" fill="#CCFBF1"/>
+    <text x="978" y="545" text-anchor="middle" class="pill" fill="#115E59">entities[] JSON</text>
+  </g>
+
+  <!-- Stage 3 -->
+  <g class="stage">
+    <rect x="1134" y="310" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/>
+    <rect x="1134" y="310" width="340" height="61" rx="19" fill="#1D4ED8"/>
+    <rect x="1134" y="347" width="340" height="24" fill="#1D4ED8"/>
+    <circle cx="1170" cy="341" r="22" fill="#1E40AF"/>
+    <text x="1170" y="349" text-anchor="middle" class="number">3</text>
+    <text x="1204" y="338" class="stageTitle">Mapping Rules</text>
+    <text x="1204" y="360" class="smallWhite">Tipe → target vocabulary</text>
+    <text x="1160" y="406" class="body">• Condition → SNOMED CT</text>
+    <text x="1160" y="434" class="body">• Reporting → ICD-10</text>
+    <text x="1160" y="462" class="body">• Lab/observasi → LOINC</text>
+    <text x="1160" y="490" class="body">• Unit → UCUM</text>
+    <text x="1160" y="518" class="body">• Multi-target + fallback</text>
+    <rect x="1290" y="528" width="158" height="24" rx="12" fill="#DBEAFE"/>
+    <text x="1369" y="545" text-anchor="middle" class="pill" fill="#1E40AF">target_vocabularies</text>
+  </g>
+
+  <!-- Stage 4 -->
+  <g class="stage">
+    <rect x="1526" y="310" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2"/>
+    <rect x="1526" y="310" width="340" height="61" rx="19" fill="#6D28D9"/>
+    <rect x="1526" y="347" width="340" height="24" fill="#6D28D9"/>
+    <circle cx="1562" cy="341" r="22" fill="#5B21B6"/>
+    <text x="1562" y="349" text-anchor="middle" class="number">4</text>
+    <text x="1596" y="338" class="stageTitle">Query Decomposition</text>
+    <text x="1596" y="360" class="smallWhite">Entitas komposit → query</text>
+    <text x="1552" y="406" class="body">• Base entity &amp; domain</text>
+    <text x="1552" y="434" class="body">• Associated entities</text>
+    <text x="1552" y="462" class="body">• Category &amp; context</text>
+    <text x="1552" y="490" class="body">• Value, unit, visit</text>
+    <text x="1552" y="518" class="body">• Method &amp; attributes</text>
+    <rect x="1700" y="528" width="140" height="24" rx="12" fill="#EDE9FE"/>
+    <text x="1770" y="545" text-anchor="middle" class="pill" fill="#5B21B6">structured query</text>
+  </g>
+
+  <!-- top arrows -->
+  <path d="M304 432 H334" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M690 432 H726" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1082 432 H1118" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1474 432 H1510" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Layer 2 -->
+  <rect x="70" y="640" width="1860" height="420" rx="22" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1.5"/>
+  <text x="98" y="674" class="bandtitle" fill="#1E40AF">LAPISAN B · CONCEPT LINKING, KEPUTUSAN, DAN PEMBELAJARAN TERVALIDASI</text>
+
+  <!-- Stage 5 -->
+  <g class="stage">
+    <rect x="1526" y="706" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#0284C7" stroke-width="2"/>
+    <rect x="1526" y="706" width="340" height="61" rx="19" fill="#0369A1"/>
+    <rect x="1526" y="743" width="340" height="24" fill="#0369A1"/>
+    <circle cx="1562" cy="737" r="22" fill="#075985"/>
+    <text x="1562" y="745" text-anchor="middle" class="number">5</text>
+    <text x="1596" y="734" class="stageTitle">Ensemble Retrieval</text>
+    <text x="1596" y="756" class="smallWhite">Kandidat Top-k</text>
+    <text x="1552" y="802" class="body">• Sparse / lexical / BM25</text>
+    <text x="1552" y="830" class="body">• Dense clinical embedding</text>
+    <text x="1552" y="858" class="body">• Terminology API</text>
+    <text x="1552" y="886" class="body">• Sinonim lokal Indonesia</text>
+    <text x="1552" y="914" class="body">• Reservoir lookup</text>
+    <rect x="1710" y="924" width="130" height="24" rx="12" fill="#E0F2FE"/>
+    <text x="1775" y="941" text-anchor="middle" class="pill" fill="#075985">Top-k candidates</text>
+  </g>
+
+  <!-- Stage 6 -->
+  <g class="stage">
+    <rect x="1134" y="706" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#0891B2" stroke-width="2"/>
+    <rect x="1134" y="706" width="340" height="61" rx="19" fill="#0E7490"/>
+    <rect x="1134" y="743" width="340" height="24" fill="#0E7490"/>
+    <circle cx="1170" cy="737" r="22" fill="#155E75"/>
+    <text x="1170" y="745" text-anchor="middle" class="number">6</text>
+    <text x="1204" y="734" class="stageTitle">Filtering &amp; Threshold</text>
+    <text x="1204" y="756" class="smallWhite">Constraint deterministik</text>
+    <text x="1160" y="802" class="body">• Domain &amp; semantic type</text>
+    <text x="1160" y="830" class="body">• Vocabulary &amp; validity</text>
+    <text x="1160" y="858" class="body">• Spesimen / waktu / unit</text>
+    <text x="1160" y="886" class="body">• Threshold per domain</text>
+    <text x="1160" y="914" class="body">• Alasan eliminasi</text>
+    <rect x="1288" y="924" width="160" height="24" rx="12" fill="#CFFAFE"/>
+    <text x="1368" y="941" text-anchor="middle" class="pill" fill="#155E75">filtered candidates</text>
+  </g>
+
+  <!-- Stage 7 -->
+  <g class="stage">
+    <rect x="742" y="706" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2"/>
+    <rect x="742" y="706" width="340" height="61" rx="19" fill="#4338CA"/>
+    <rect x="742" y="743" width="340" height="24" fill="#4338CA"/>
+    <circle cx="778" cy="737" r="22" fill="#3730A3"/>
+    <text x="778" y="745" text-anchor="middle" class="number">7</text>
+    <text x="812" y="734" class="stageTitle">Reranking &amp; Keputusan</text>
+    <text x="812" y="756" class="smallWhite">LLM / cross-encoder</text>
+    <text x="768" y="802" class="body">• Definisi &amp; sinonim</text>
+    <text x="768" y="830" class="body">• Konteks dokumen</text>
+    <text x="768" y="858" class="body">• exact / highly relevant</text>
+    <text x="768" y="886" class="body">• partial / not relevant</text>
+    <text x="768" y="914" class="body">• Confidence + reasoning</text>
+    <rect x="932" y="924" width="124" height="24" rx="12" fill="#E0E7FF"/>
+    <text x="994" y="941" text-anchor="middle" class="pill" fill="#3730A3">Top-1 + Top-k</text>
+  </g>
+
+  <!-- Stage 8 -->
+  <g class="stage">
+    <rect x="350" y="706" width="340" height="250" rx="19" fill="#FFFFFF" stroke="#D97706" stroke-width="2"/>
+    <rect x="350" y="706" width="340" height="61" rx="19" fill="#B45309"/>
+    <rect x="350" y="743" width="340" height="24" fill="#B45309"/>
+    <circle cx="386" cy="737" r="22" fill="#92400E"/>
+    <text x="386" y="745" text-anchor="middle" class="number">8</text>
+    <text x="420" y="734" class="stageTitle">Human-in-the-Loop</text>
+    <text x="420" y="756" class="smallWhite">Validasi &amp; reservoir</text>
+    <text x="376" y="802" class="body">• Review confidence rendah</text>
+    <text x="376" y="830" class="body">• Validasi dokter/perekam</text>
+    <text x="376" y="858" class="body">• Status &amp; provenance</text>
+    <text x="376" y="886" class="body">• Versioned approval</text>
+    <text x="376" y="914" class="body">• Reuse mapping tervalidasi</text>
+    <rect x="514" y="924" width="150" height="24" rx="12" fill="#FEF3C7"/>
+    <text x="589" y="941" text-anchor="middle" class="pill" fill="#92400E">validated mapping</text>
+  </g>
+
+  <!-- Output -->
+  <rect x="94" y="706" width="210" height="250" rx="18" fill="#FFFFFF" stroke="#15803D" stroke-width="2" filter="url(#shadow)"/>
+  <text x="199" y="744" text-anchor="middle" class="strong">OUTPUT</text>
+  <line x1="119" y1="759" x2="279" y2="759" stroke="#CBD5E1"/>
+  <text x="119" y="793" class="body">• Entitas terstruktur</text>
+  <text x="119" y="822" class="body">• Kode &amp; label standar</text>
+  <text x="119" y="851" class="body">• Vocabulary &amp; domain</text>
+  <text x="119" y="880" class="body">• Top-k + confidence</text>
+  <text x="119" y="909" class="body">• Validation status</text>
+  <text x="119" y="938" class="body">• Provenance mapping</text>
+
+  <!-- snake and second row arrows -->
+  <path d="M1696 560 V680 Q1696 690 1686 690 H1696 V690" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <text x="1714" y="632" class="arrowLabel">query per target</text>
+  <path d="M1526 832 H1490" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1134 832 H1098" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M350 832 H320" stroke="#15803D" stroke-width="3.5" fill="none" marker-end="url(#arrowGreen)"/>
+
+  <!-- Knowledge sources -->
+  <rect x="1485" y="982" width="405" height="56" rx="14" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.5"/>
+  <text x="1687" y="1006" text-anchor="middle" class="strong">KNOWLEDGE SOURCES</text>
+  <text x="1687" y="1028" text-anchor="middle" class="bodySmall">SNOMED CT • LOINC • ICD-10 • UCUM • sinonim lokal</text>
+  <path d="M1687 982 V970" stroke="#2563EB" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Reservoir feedback -->
+  <rect x="350" y="982" width="460" height="56" rx="14" fill="#FFF7ED" stroke="#D97706" stroke-width="1.5"/>
+  <text x="580" y="1006" text-anchor="middle" class="strong">KNOWLEDGE RESERVOIR TERVERIFIKASI</text>
+  <text x="580" y="1028" text-anchor="middle" class="bodySmall">mention • context • code • validator • status • timestamp</text>
+  <path d="M520 956 V975" stroke="#B45309" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <path d="M810 1010 H1420 Q1450 1010 1450 980 V900 Q1450 880 1476 880 H1510" stroke="#B45309" stroke-width="2.5" fill="none" stroke-dasharray="8 6" marker-end="url(#arrow)"/>
+  <text x="1115" y="1001" text-anchor="middle" class="arrowLabel">reuse mapping tervalidasi sebelum retrieval</text>
+
+  <!-- confidence gate -->
+  <path d="M912 956 V983" stroke="#334155" stroke-width="2.5"/>
+  <polygon points="912,975 952,1010 912,1045 872,1010" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2"/>
+  <text x="912" y="1007" text-anchor="middle" class="pill" fill="#3730A3">confidence</text>
+  <text x="912" y="1024" text-anchor="middle" class="pill" fill="#3730A3">cukup?</text>
+  <path d="M872 1010 H720 Q706 1010 706 996 V892 Q706 878 692 878" stroke="#B45309" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="790" y="998" class="arrowLabel">tidak → review ahli</text>
+  <path d="M912 1045 V1072 H199 V972" stroke="#15803D" stroke-width="2.5" fill="none" marker-end="url(#arrowGreen)"/>
+  <text x="925" y="1066" class="arrowLabel">ya → auto-accept</text>
+
+  <!-- Evaluation layer -->
+  <rect x="70" y="1092" width="1860" height="190" rx="22" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+  <circle cx="116" cy="1140" r="27" fill="#334155"/>
+  <text x="116" y="1148" text-anchor="middle" class="number">9</text>
+  <text x="158" y="1134" class="strong">Evaluasi end-to-end, ablation study, dan error analysis</text>
+  <text x="158" y="1160" class="bodySmall">Evaluasi per komponen mencegah error propagation tersembunyi dan mengukur kontribusi setiap modul.</text>
+
+  <rect x="102" y="1190" width="270" height="58" rx="12" fill="#F0FDF4" stroke="#86EFAC"/>
+  <text x="237" y="1214" text-anchor="middle" class="strong">NORMALISASI</text>
+  <text x="237" y="1236" text-anchor="middle" class="bodySmall">exact match • preservation</text>
+
+  <rect x="390" y="1190" width="270" height="58" rx="12" fill="#F0FDFA" stroke="#5EEAD4"/>
+  <text x="525" y="1214" text-anchor="middle" class="strong">ENTITY EXTRACTION</text>
+  <text x="525" y="1236" text-anchor="middle" class="bodySmall">span/type F1 • attributes</text>
+
+  <rect x="678" y="1190" width="270" height="58" rx="12" fill="#F5F3FF" stroke="#C4B5FD"/>
+  <text x="813" y="1214" text-anchor="middle" class="strong">DECOMPOSITION</text>
+  <text x="813" y="1236" text-anchor="middle" class="bodySmall">field-level precision/recall/F1</text>
+
+  <rect x="966" y="1190" width="270" height="58" rx="12" fill="#EFF6FF" stroke="#93C5FD"/>
+  <text x="1101" y="1214" text-anchor="middle" class="strong">RETRIEVAL</text>
+  <text x="1101" y="1236" text-anchor="middle" class="bodySmall">Accuracy@k • Recall@k • MRR</text>
+
+  <rect x="1254" y="1190" width="270" height="58" rx="12" fill="#EEF2FF" stroke="#A5B4FC"/>
+  <text x="1389" y="1214" text-anchor="middle" class="strong">MAPPING FINAL</text>
+  <text x="1389" y="1236" text-anchor="middle" class="bodySmall">accuracy • F1 • coverage</text>
+
+  <rect x="1542" y="1190" width="352" height="58" rx="12" fill="#FFF7ED" stroke="#FDBA74"/>
+  <text x="1718" y="1214" text-anchor="middle" class="strong">OPERASIONAL &amp; HUMAN</text>
+  <text x="1718" y="1236" text-anchor="middle" class="bodySmall">latency • cost • consistency • agreement</text>
+
+  <!-- Footer -->
+  <text x="70" y="1323" class="bodySmall">Framework usulan · Adaptasi CDE-Mapper untuk Bahasa Indonesia · Tahap 0–9 · Versi diagram 2026-07-26</text>
+  <text x="1930" y="1323" text-anchor="end" class="bodySmall">SNOMED CT · LOINC · ICD-10 · UCUM</text>
+</svg>
