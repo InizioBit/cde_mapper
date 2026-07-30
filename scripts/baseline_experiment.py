@@ -133,6 +133,12 @@ def qdrant_query(client, collection: str, vector, vector_name: str, topk: int) -
         return [], round((time.perf_counter() - started) * 1000, 3), repr(exc)
 
 
+def normalize_athena_domain(value: str | None) -> str | None:
+    if not value or str(value).casefold() == "all":
+        return None
+    return str(value).strip().capitalize()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/baseline.yaml")
@@ -226,8 +232,15 @@ def main() -> int:
     records = []
     for row in rows:
         domain = row.get("domain", "all")
-        athena_for_domain = athena
-        athena_for_domain.k = int(params["topk"])
+        athena_domain = normalize_athena_domain(domain)
+        athena_for_domain = RetrieverAthenaAPI(
+            filters=AthenaFilters(
+                domain=[athena_domain] if athena_domain else None,
+                vocabulary=["SNOMED", "LOINC", "UCUM", "OMOP Extension", "ATC", "RxNorm"],
+                standard_concept=["Standard", "Classification"],
+            ),
+            k=int(params["topk"]),
+        )
         total_started = time.perf_counter()
         dense_docs, dense_ms, dense_error = dense_results[row["id"]]
         sparse_docs, sparse_ms, sparse_error = sparse_results[row["id"]]

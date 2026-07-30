@@ -1,0 +1,7 @@
+fastapi==0.141.1
+uvicorn==0.52.0
+playwright==1.61.0
+pydantic==2.9.2
+SQLAlchemy==2.0.35
+aiosqlite==0.22.1
+python-dotenv==1.0.1

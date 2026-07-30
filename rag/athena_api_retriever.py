@@ -1,5 +1,6 @@
 from typing import List
 import asyncio
+import os
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
@@ -133,6 +134,26 @@ def convert_to_documents(results) -> List[Document]:
     return matching_documents
 
 
+def get_athena_api_url() -> str:
+    return os.getenv(
+        "ATHENA_API_URL",
+        "http://127.0.0.1:8000/api/athena/search",
+    )
+
+
+def build_athena_params(filters: AthenaFilters, query: str, k: int) -> dict:
+    return {
+        "query": query,
+        "domain": filters.domain,
+        "vocabulary": filters.vocabulary,
+        "standardConcept": ["Standard", "Classification"],
+        "pageSize": k,
+        "page": filters.page,
+        "invalidReason": "Valid",
+        "format": "athena",
+    }
+
+
 class RetrieverAthenaAPI(BaseRetriever):
     filters: AthenaFilters
     k: int = 15
@@ -144,16 +165,8 @@ class RetrieverAthenaAPI(BaseRetriever):
 
     async def _afetch_from_athena(self, query: str):
         """Fetch concepts from Athena API asynchronously and return JSON response."""
-        url = "https://athena.ohdsi.org/api/v1/concepts"
-        params = {
-            "query": query,
-            "domain": self.filters.domain,
-            "vocabulary": self.filters.vocabulary,
-            "standardConcept": ["Standard", "Classification"],
-            "pageSize": self.k,
-            "page": self.filters.page,
-            "invalidReason": "Valid",
-        }
+        url = get_athena_api_url()
+        params = build_athena_params(self.filters, query, self.k)
         # We need to fake the user agent to avoid a 403 error, not good practice but it works
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -199,16 +212,8 @@ class RetrieverAthenaAPI(BaseRetriever):
         #    if "MedDRA" in self.filters.vocabulary:
         #     self.filters.vocabulary.remove("MedDRA")
         """Fetch concepts from Athena API asynchronously and return JSON response."""
-        url = "https://athena.ohdsi.org/api/v1/concepts"
-        params = {
-            "query": query,
-            "domain": self.filters.domain,
-            "vocabulary": self.filters.vocabulary,
-            "standardConcept": ["Standard", "Classification"],
-            "pageSize": self.k,
-            "page": self.filters.page,
-            "invalidReason": "Valid",
-        }
+        url = get_athena_api_url()
+        params = build_athena_params(self.filters, query, self.k)
         # We need to fake the user agent to avoid a 403 error, not good practice but it works
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
