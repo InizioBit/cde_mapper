@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from playwright.async_api import Browser, Page, TimeoutError, async_playwright
@@ -100,7 +101,7 @@ class AthenaBrowserAdapter:
     async def search(self, params: AthenaSearchParams) -> dict[str, Any]:
         url = self.build_search_url(params)
         csv_results = await self._extract_results_from_csv_http(params)
-        if csv_results:
+        if csv_results is not None:
             total_result_count = len(csv_results)
             csv_results = self._apply_pagination(csv_results, params)
             logger.info(
@@ -399,18 +400,32 @@ class AthenaBrowserAdapter:
 
     async def _extract_results_from_csv_http(
         self, params: AthenaSearchParams
-    ) -> list[dict[str, Any]]:
+    ) -> list[dict[str, Any]] | None:
         url = self.build_download_csv_url(params)
         logger.info("athena_direct_csv_download url=%s", url)
         try:
             body = await asyncio.to_thread(self._download_csv_text, url)
+        except HTTPError as exc:
+            if exc.code == 400:
+                logger.info(
+                    "athena_direct_csv_bad_request_as_empty url=%s status=%s",
+                    url,
+                    exc.code,
+                )
+                return []
+            logger.warning(
+                "athena_direct_csv_download_error url=%s error=%r",
+                url,
+                str(exc),
+            )
+            return None
         except Exception as exc:
             logger.warning(
                 "athena_direct_csv_download_error url=%s error=%r",
                 url,
                 str(exc),
             )
-            return []
+            return None
 
         results = self._extract_results_from_csv_text(body)
         logger.info(
