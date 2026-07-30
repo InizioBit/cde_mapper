@@ -121,6 +121,10 @@ class AthenaBrowserAdapter:
                 "results": csv_results,
             }
 
+        raise AthenaAdapterError(
+            "Athena direct CSV download failed; browser fallback is disabled for search."
+        )
+
         logger.info(
             "athena_browser_open url=%s query=%r domain=%r page=%s",
             url,
