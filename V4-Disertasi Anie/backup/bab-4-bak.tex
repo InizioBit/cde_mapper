@@ -1,0 +1,286 @@
+\chapter{METODE PENELITIAN}
+
+\section{Gambaran Umum Penelitian}
+
+Penelitian ini bertujuan untuk mengembangkan dan mengevaluasi sebuah \textit{framework} adaptif untuk pemetaan terminologi klinis Bahasa Indonesia ke kosakata terkendali standar, seperti SNOMED CT, LOINC, dan ICD-10. Pendekatan utama yang diusulkan adalah adaptasi dari arsitektur CDE-Mapper \citep{gilani_cde-mapper_2025} dengan optimalisasi komponen ekstraksi teks klinis yang menggunakan bahasa Indonesia dan berupa teks panjang.
+
+\section{Tahapan Penelitian}
+
+Penelitian ini akan dilaksanakan dalam lima tahapan utama seperti digambarkan pada Gambar~\ref{fig:tahapan-penelitian}.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{media/tahapan_penelitian.png}
+    \caption{Tahapan penelitian}
+    \label{fig:tahapan-penelitian}
+\end{figure}
+
+Penelitian ini dilaksanakan dalam lima tahapan utama yang saling terkait secara berurutan maupun iteratif. Kelima tahapan pada Gambar~\ref{fig:tahapan-penelitian} dijelaskan sebagai berikut.
+
+\subsection{Persiapan dan Analisis}
+
+Tahap ini bertujuan untuk membangun fondasi teoritis dan menyiapkan sumber daya data yang diperlukan sebelum memasuki pengembangan model.
+
+\subsubsection{Studi Literatur}
+
+Studi literatur dilakukan secara sistematis untuk mengidentifikasi \textit{state-of-the-art} dalam pemetaan terminologi klinis. Ruang lingkup literatur mencakup standar interoperabilitas kesehatan, seperti FHIR, SNOMED CT, LOINC, dan ICD-10, serta implementasinya di SATUSEHAT \citep{ayuningtyas_bringing_2025,heryawan_fast_2025}; metode pemetaan dari \textit{rule-based}, \textit{machine learning}, \textit{deep learning}, hingga LLM dan RAG \citep{meizoso_automated_2011,hristov_application_2021,gilani_cde-mapper_2025}; serta arsitektur CDE-Mapper dan keterbatasannya dalam memproses teks panjang dengan \textit{multiple CDE} komposit \citep{gilani_cde-mapper_2025}. Hasil studi literatur digunakan untuk merumuskan kerangka konseptual dan menentukan komponen kunci yang akan diadaptasi.
+
+\subsubsection{Identifikasi dan Pengembangan Dataset}
+
+Kegiatan ini mencakup identifikasi sumber data istilah klinis Bahasa Indonesia. Data diperoleh dari rekam medis elektronik (RME) puskesmas atau klinik swasta, dan platform konsultasi kesehatan daring yang telah dianonimkan. Sumber-sumber ini dipilih karena merepresentasikan variasi nyata istilah lokal, singkatan, dan kesalahan eja \citep{purwitasari_comparison_2023,hossain_exploratory_2025}. Selain itu, dikumpulkan pula kosakata terkendali standar berupa SNOMED CT, LOINC, dan ICD-10 sebagai terminologi target.
+
+Pembangunan dataset emas (\textit{gold standard}) dilakukan dengan menganotasi sampel 100--200 istilah klinis secara manual oleh tenaga medis, seperti dokter atau perekam medis, dengan kode standar yang sesuai. Validasi antar-anotator (\textit{inter-annotator agreement}) dihitung menggunakan koefisien Kappa Fleiss untuk menjamin konsistensi. Dataset emas ini menjadi kebenaran dasar untuk evaluasi performa model.
+
+\subsection{Perancangan dan Pengembangan Model}
+
+Pada tahap ini, arsitektur model usulan dirancang dan komponen \textit{preprocessing} dikembangkan secara spesifik untuk teks klinis panjang dalam bahasa Indonesia.
+
+\subsubsection{Adaptasi Arsitektur}
+
+Arsitektur CDE-Mapper diadaptasi dengan mengganti komponen yang membutuhkan LLM besar dan komputasi intensif. Adaptasi utama meliputi penambahan modul dekomposisi teks panjang. Karena CDE-Mapper asli hanya menerima satu CDE per \textit{input}, ditambahkan modul yang memecah dokumen klinis panjang menjadi unit-unit kalimat atau klausa yang mengandung CDE potensial. Pendekatan ini menggunakan aturan sederhana, misalnya pemisah kalimat, dan deteksi frasa klinis berbasis pola.
+
+Optimasi \textit{LLM-based query decomposition} untuk \textit{retrieval ensemble} dilakukan agar sesuai dengan karakteristik istilah klinis Bahasa Indonesia dan kebutuhan \textit{multi-terminology mapping}. Selain itu, diintegrasikan pula mekanisme \textit{confidence-based selection} yang diadaptasi dari pendekatan hibrida normalisasi konsep klinis oleh \citet{chen_clinical_2020} untuk menangani ketidakpastian dan merekomendasikan kandidat yang perlu validasi manual.
+
+\subsubsection{Preprocessing}
+
+\textit{Preprocessing} dirancang khusus untuk mengatasi variasi leksikal dalam Bahasa Indonesia. Langkah-langkahnya meliputi \textit{case folding}, yaitu semua teks diubah menjadi huruf kecil; normalisasi singkatan medis menggunakan kamus singkatan yang dibangun dari literatur dan buku rekam medis, misalnya ``DM'' menjadi ``diabetes mellitus'' dan ``TD'' menjadi ``tekanan darah''; \textit{stemming} Bahasa Indonesia untuk mengurangi kata berimbuhan ke bentuk dasar; penanganan variasi ejaan dan istilah sehari-hari menggunakan pendekatan \textit{fuzzy string matching} terhadap kamus istilah medis baku; serta pencocokan berbasis aturan eksak, sehingga istilah yang sudah sesuai dengan \textit{preferred term} atau sinonim dapat langsung dijadikan kandidat dengan \textit{confidence} tinggi.
+
+\subsection{Implementasi Inti Model}
+
+Tahap implementasi inti model mencakup tiga komponen utama. Pertama, \textit{retrieval ensemble} yang memanfaatkan SPLADE dan SapBERT. Komponen ini bertujuan menghasilkan daftar kandidat konsep standar dari basis pengetahuan terminologi. Kedua, \textit{filtering} dan \textit{re-ranking} yang digunakan untuk mengurangi \textit{noise} dan mencegah pemetaan yang salah. Ketiga, integrasi modul dalam sebuah \textit{pipeline} berbasis Python.
+
+Integrasi mencakup aliran data dari \textit{preprocessing}, dekomposisi, \textit{retrievers}, \textit{re-ranking}, dan \textit{confidence selection}; antarmuka sederhana untuk menerima \textit{input} teks panjang berupa dokumen klinis dan mengembalikan daftar kode standar terpilih beserta skor keyakinan; serta mekanisme \textit{logging} untuk mencatat setiap pemetaan guna keperluan analisis kesalahan.
+
+\subsection{Evaluasi dan Validasi}
+
+Tahap ini menguji performa model secara kuantitatif dan kualitatif.
+
+\subsubsection{Uji Coba Model}
+
+Model diuji pada dataset emas dengan skenario sebagai berikut.
+
+\begin{enumerate}
+    \item Uji standar: menggunakan istilah yang sudah baku dalam dataset.
+    \item Uji variasi leksikal: menggunakan istilah dengan singkatan, ejaan salah, atau bahasa sehari-hari yang diambil dari platform konsultasi daring \citep{purwitasari_comparison_2023}.
+    \item Uji teks panjang: menggunakan dokumen klinis naratif, misalnya catatan perkembangan pasien, yang mengandung beberapa CDE komposit. Model harus mengekstraksi seluruh CDE dan memetakannya.
+    \item Uji ablasi: model dijalankan tanpa komponen tertentu, yaitu tanpa modul \textit{rule-based}, tanpa SapBERT, dan tanpa \textit{cross-encoder}, untuk mengukur kontribusi masing-masing komponen.
+    \item Perbandingan \textit{baseline}: perbandingan utama yang akan dilakukan adalah membandingkan \textit{framework} usulan dengan CDE-Mapper original \citep{gilani_cde-mapper_2025}. Jika memungkinkan, simulasi dengan LLM kecil akan digunakan untuk proses dekomposisi dengan anggaran komputasi yang dibatasi.
+\end{enumerate}
+
+\subsubsection{Analisis Hasil}
+
+Hasil kuantitatif disajikan dalam tabel dan grafik perbandingan. Analisis statistik, misalnya uji-\textit{t} berpasangan, dilakukan untuk menentukan signifikansi perbedaan antar model. Selain itu, dilakukan analisis kesalahan (\textit{error analysis}) dengan mengelompokkan kesalahan pemetaan ke dalam kategori berikut.
+
+\begin{enumerate}
+    \item Kesalahan karena variasi leksikal, misalnya singkatan yang tidak dikenal.
+    \item Kesalahan karena ambiguitas semantik, yaitu satu istilah dapat merujuk ke dua konsep berbeda.
+    \item Kesalahan karena kegagalan ekstraksi CDE dari teks panjang.
+    \item Kesalahan karena keterbatasan pengetahuan terminologi, yaitu ketika konsep tidak ada di basis data.
+\end{enumerate}
+
+Setiap kesalahan dianalisis secara kualitatif untuk memberikan rekomendasi perbaikan.
+
+\subsection{Analisis dan Dokumentasi}
+
+Tahap akhir penelitian ini berfokus pada interpretasi, penarikan kesimpulan, dan penulisan laporan.
+
+\subsubsection{Interpretasi Hasil}
+
+Hasil evaluasi diinterpretasikan dalam kerangka pertanyaan penelitian: seberapa baik \textit{framework} usulan memetakan terminologi klinis Bahasa Indonesia dibandingkan \textit{baseline}; bagaimana kontribusi masing-masing komponen, seperti dekomposisi, \textit{retrieval ensemble}, dan \textit{preprocessing}, terhadap peningkatan akurasi; apakah model mampu menangani teks panjang dengan \textit{multiple CDE} komposit secara simultan; dan seberapa efisien model digunakan untuk teks klinis dalam bahasa Indonesia.
+
+\subsubsection{Penarikan Kesimpulan}
+
+Kesimpulan dirumuskan berdasarkan tujuan penelitian yang ditetapkan di Bab I. \textit{Framework} adaptif yang dikembangkan diharapkan mampu mengatasi keterbatasan CDE-Mapper asli dalam memproses teks klinis panjang dan mengenali \textit{multiple CDE}. Pendekatan \textit{hybrid rule-based} dan \textit{semantic retrieval} diharapkan efektif untuk konteks \textit{low-resource} bahasa Indonesia dengan akurasi yang kompetitif. Rekomendasi juga diberikan untuk implementasi di SATUSEHAT dan penelitian lanjutan, termasuk perlunya validasi klinis yang lebih luas dan pengembangan mekanisme \textit{active learning} untuk memperbaiki model secara berkelanjutan.
+
+\subsubsection{Penulisan Laporan}
+
+Seluruh proses, desain, implementasi, data, hasil, dan kesimpulan didokumentasikan secara sistematis dalam naskah disertasi sesuai panduan penulisan Universitas Gadjah Mada. Laporan juga mencakup kode sumber pada repositori pendukung dan dataset anonim yang digunakan sehingga penelitian ini dapat direproduksi dan dikembangkan lebih lanjut oleh peneliti lain.
+
+\section{Deskripsi Usulan Model}
+
+Arsitektur model yang diusulkan untuk mengadaptasi CDE-Mapper agar mampu melakukan pemetaan terminologi klinis Bahasa Indonesia secara \textit{end-to-end} dari teks klinis panjang menjadi kode standar, yaitu SNOMED CT, LOINC, dan ICD-10. Model diusulkan sebagai \textit{pipeline hybrid} yang menggabungkan ekstraksi entitas berbasis LLM, \textit{retrieval} semantik dan leksikal (\textit{dense} + \textit{sparse}), serta mekanisme validasi dan penyimpanan pengetahuan (\textit{knowledge reservoir}) untuk meningkatkan akurasi dan efisiensi inferensi \citep{gilani_cde-mapper_2025}.
+
+\subsection{Tujuan dan Keluaran Model}
+
+Secara operasional, model menerima masukan berupa: (1) teks klinis panjang berbahasa Indonesia, misalnya resume medis, catatan perkembangan, atau hasil penunjang; atau (2) daftar istilah atau \textit{field} dari kamus data RME. Keluaran yang diharapkan adalah daftar \textit{clinical data elements} (CDE) hasil ekstraksi beserta pasangan pemetaan ke terminologi target, yang mencakup \textit{mention} asli, tipe entitas, normalisasi istilah, kandidat kode teratas (Top-\textit{k}), skor kepercayaan, serta keputusan akhir, yaitu \textit{exact}, \textit{highly}, \textit{partial}, atau \textit{not relevant}. Untuk kasus komposit, keluaran juga menyertakan dekomposisi atribut, yaitu \textit{Base entity}, \textit{Domain}, \textit{Additional Entities}, \textit{categories}, \textit{Unit}, \textit{Visit}, dan \textit{Method} \citep{gilani_cde-mapper_2025}.
+
+\subsection{Gambaran Arsitektur dan Alur Proses}
+
+Arsitektur usulan mengadopsi urutan komponen utama CDE-Mapper \citep{gilani_cde-mapper_2025} dan menambahkan modul khusus untuk pemrosesan teks panjang Bahasa Indonesia. Secara ringkas, alur proses terdiri dari langkah-langkah berikut.
+
+\begin{enumerate}
+    \item \textbf{Pra-pemrosesan dan normalisasi bahasa.} Tahap ini mencakup pembersihan teks, segmentasi kalimat, normalisasi singkatan umum, koreksi ejaan ringan (\textit{typo}), dan standarisasi simbol, angka, serta satuan.
+    \item \textbf{Ekstraksi entitas (\textit{long-text entity extraction}).} LLM atau model NER yang disesuaikan mengekstraksi entitas klinis dari teks panjang serta atribut penting, yaitu \textit{Base entity}, \textit{Domain}, \textit{Additional Entities}, \textit{categories}, \textit{Unit}, \textit{Visit}, dan \textit{Method}. \textit{Output} berupa daftar \textit{mention} terstruktur \citep{purwitasari_comparison_2023}.
+    \item \textbf{Klasifikasi tipe CDE dan penentuan terminologi target.} Setiap entitas diklasifikasikan, misalnya jika terdapat diagnosis atau temuan maka dirujuk ke SNOMED CT, pemeriksaan laboratorium ke LOINC, dan diagnosis untuk pelaporan atau \textit{billing} ke ICD-10. Tahap ini menerapkan aturan (\textit{linking rules}) yang dapat dikonfigurasi \citep{ayuningtyas_bringing_2025}.
+    \item \textbf{Dekomposisi query untuk entitas komposit.} Entitas kompleks dipecah menjadi komponen yang dapat di-\textit{retrieval}, yaitu \textit{Base entity}, \textit{Domain}, \textit{Additional Entities}, \textit{categories}, \textit{Unit}, \textit{Visit}, dan \textit{Method}, agar kandidat yang dicari lebih spesifik \citep{gilani_cde-mapper_2025}.
+    \item \textbf{\textit{Ensemble retrieval} kandidat konsep.} Sistem melakukan pencarian kandidat kode dengan menggabungkan \textit{retriever sparse} untuk kecocokan leksikal dan \textit{retriever dense} berbasis embedding untuk kecocokan semantik. Kandidat diambil dari \textit{knowledge base} terminologi yang telah diperkaya sinonim \citep{gilani_cde-mapper_2025}.
+    \item \textbf{\textit{Filtering} berbasis aturan dan \textit{threshold}.} Kandidat disaring dengan pembatasan domain atau \textit{semantic type}, misalnya hanya \textit{disorder} untuk diagnosis, dan ambang kemiripan seperti \textit{cosine similarity} untuk mengurangi \textit{noise} \citep{chen_clinical_2020}.
+    \item \textbf{\textit{Reranking} dan keputusan akhir.} LLM atau model \textit{reranker} menilai ulang kandidat Top-\textit{k} dan menghasilkan keputusan final, yaitu \textit{exact}, \textit{highly}, \textit{partial}, atau \textit{not relevant}, beserta skor kepercayaan. Mekanisme \textit{self-consistency} dapat digunakan untuk menstabilkan keputusan \citep{gilani_cde-mapper_2025}.
+    \item \textbf{\textit{Knowledge reservoir}.} Pasangan antara \textit{mention} berbahasa Indonesia dan kode standar yang telah tervalidasi disimpan untuk mempercepat pemetaan istilah yang berulang dan meningkatkan konsistensi lintas dokumen \citep{gilani_cde-mapper_2025}.
+\end{enumerate}
+
+Arsitektur dan alur \textit{pipeline} yang diusulkan juga dapat dilihat pada Gambar~\ref{fig:arsitektur-usulan-model}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{media/arsitektur_usulan.png}
+    \caption{Gambaran arsitektur dan alur \textit{pipeline} yang diusulkan}
+    \label{fig:arsitektur-usulan-model}
+\end{figure}
+
+\subsection{Komponen Utama dan Adaptasi untuk Bahasa Indonesia}
+
+Adaptasi utama yang diusulkan berfokus pada: (i) kemampuan menangani variasi bahasa Indonesia klinis, seperti singkatan, istilah lokal, dan ejaan tidak baku; (ii) pemrosesan teks panjang secara \textit{end-to-end}, bukan hanya \textit{single CDE}; dan (iii) pemetaan simultan ke beberapa terminologi, yaitu SNOMED CT, LOINC, dan ICD-10. Penjabaran komponen usulan adalah sebagai berikut.
+
+\begin{enumerate}
+    \item \textbf{\textit{Knowledge base} terminologi dan perluasan sinonim (\textit{KB enrichment}).} \textit{Knowledge base} dibangun dari terminologi standar, yaitu SNOMED CT, LOINC, dan ICD-10, dan diperkaya dengan sinonim atau \textit{alias} dari sumber lain, misalnya label lokal dari kamus data RME, variasi penulisan, dan padanan bilingual bila tersedia. Tahap ini ditujukan untuk meningkatkan \textit{recall} pada istilah lokal Indonesia tanpa mengubah terminologi target.
+    \item \textbf{\textit{Retrieval ensemble} yang disesuaikan untuk bahasa Indonesia.} Selain \textit{retriever dense} berbasis embedding, \textit{retriever sparse} diperlukan agar lebih \textit{robust} terhadap variasi ejaan, tokenisasi, dan singkatan. Pada tahap ini juga dapat ditambahkan kamus singkatan dan normalisasi morfologis ringan untuk memperbaiki pencarian leksikal.
+    \item \textbf{\textit{Long-text clinical entity extraction} berbasis LLM.} Berbeda dari CDE-Mapper asli yang berfokus pada CDE tunggal, modul ini mengekstraksi banyak entitas dari satu dokumen. \textit{Output} disusun dalam format terstruktur, misalnya JSON, agar dapat diproses \textit{downstream}, termasuk deteksi negasi sederhana, seperti ``tidak ada riwayat \ldots'', dan konteks waktu, seperti ``sebelumnya'' atau ``kini''.
+    \item \textbf{\textit{Linking rules} multi-terminologi.} Aturan pengikatan terminologi ditetapkan untuk konteks SATUSEHAT: (a) temuan, diagnosis, atau keluhan dihubungkan ke SNOMED CT, (b) tes atau hasil laboratorium ke LOINC, dan (c) diagnosis untuk pelaporan atau klasifikasi ke ICD-10. Aturan ini juga memuat \textit{fallback}, misalnya bila tidak ditemukan padanan SNOMED CT yang spesifik maka sistem mengembalikan kandidat konsep yang lebih luas (\textit{broader match}) atau menyarankan \textit{post-coordination} bila memungkinkan.
+    \item \textbf{\textit{Filtering} kandidat berbasis \textit{constraint} terminologi.} \textit{Filtering} mengurangi kesalahan lintas domain, misalnya mencegah konsep prosedur muncul saat targetnya diagnosis, atau mencegah kandidat LOINC non-laboratorium saat entitasnya hasil lab. Untuk ICD-10, \textit{filtering} dapat mempertimbangkan bab atau sub-bab sesuai kata kunci klinis.
+    \item \textbf{\textit{Reranking} dan penilaian kesesuaian klinis.} \textit{Reranking} dilakukan dengan mempertimbangkan definisi konsep, sinonim, dan, jika ada, konteks kalimat dari dokumen. Hasilnya berupa kandidat Top-1 dan Top-\textit{k} beserta label tingkat kesesuaian.
+    \item \textbf{\textit{Human-in-the-loop} untuk \textit{gold standard} dan \textit{knowledge reservoir}.} Karena tidak ada \textit{gold standard} otomatis untuk istilah lokal, hasil pemetaan, terutama yang memiliki \textit{confidence} rendah atau menengah, akan divalidasi oleh ahli, seperti dokter atau perekam medis. Hasil validasi dipakai untuk membangun \textit{knowledge reservoir} sehingga performa meningkat seiring waktu.
+\end{enumerate}
+
+\subsection{Asumsi, Batasan, dan Strategi Mitigasi}
+
+Model mengasumsikan akses terhadap terminologi standar yang relevan dan/atau ekspor terminologi dari SATUSEHAT, serta ketersediaan sampel data klinis yang dapat dianonimkan untuk pengembangan dan evaluasi. Batasan utama meliputi: (1) variasi bahasa yang sangat ekstrem pada catatan klinis, (2) konsep lokal yang tidak memiliki padanan langsung pada terminologi target, (3) potensi halusinasi pada LLM saat ekstraksi atau \textit{reranking}, serta (4) kebutuhan validasi ahli. Untuk mitigasi, penelitian mengusulkan penggunaan \textit{constraint} terminologi pada tahap \textit{filtering}, penerapan \textit{threshold} dan \textit{self-consistency} pada \textit{reranking}, serta penerapan \textit{human-in-the-loop} dan \textit{knowledge reservoir} untuk meningkatkan kualitas secara iteratif.
+
+\section{Rancangan Pengujian}
+
+Bagian ini menjelaskan rancangan pengujian untuk mengevaluasi performa model usulan pada tugas pemetaan terminologi klinis Bahasa Indonesia ke SNOMED CT, LOINC, dan ICD-10. Rancangan dibuat untuk mengukur akurasi pemetaan, ketahanan terhadap variasi bahasa, kontribusi setiap komponen (\textit{ablation}), serta kesiapan penerapan pada konteks interoperabilitas SATUSEHAT.
+
+\subsection{Desain Eksperimen dan Skenario Pengujian}
+
+\begin{enumerate}
+    \item \textbf{\textit{Terminology mapping} dari istilah pendek (\textit{single-mention}).} \textit{Input} berupa daftar istilah atau \textit{field} dari kamus data RME atau label klinis singkat. Tujuannya adalah mengukur kemampuan normalisasi istilah lokal dan varian ejaan.
+    \item \textbf{\textit{End-to-end mapping} dari teks panjang (\textit{multi-mention}).} \textit{Input} berupa dokumen klinis panjang berbahasa Indonesia. Tujuannya adalah mengukur \textit{pipeline} lengkap, yaitu ekstraksi dan \textit{mapping}, serta dampak \textit{error propagation}.
+    \item \textbf{\textit{Multi-terminology routing}.} Pengujian ini menilai kemampuan sistem memilih terminologi target yang tepat, yaitu SNOMED CT, LOINC, atau ICD-10, berdasarkan tipe entitas dan konteks \citep{ayuningtyas_bringing_2025}.
+    \item \textbf{\textit{Robustness} terhadap variasi bahasa.} Pengujian dilakukan pada subset data yang mengandung singkatan, campuran bahasa Indonesia--Inggris, istilah lokal, dan \textit{typo} \citep{purwitasari_comparison_2023}.
+\end{enumerate}
+
+\subsection{Dataset, Pembagian Data, dan \textit{Gold Standard}}
+
+Dataset evaluasi dibangun dari sampel istilah dan/atau dokumen yang merepresentasikan data klinis Indonesia, kemudian dianotasi menjadi \textit{gold standard} oleh ahli. Untuk memastikan evaluasi yang adil, data dipisahkan menjadi: (i) data pengembangan untuk \textit{tuning threshold}, \textit{prompt}, aturan, dan konfigurasi \textit{retriever}; serta (ii) data uji (\textit{hold-out}) yang tidak digunakan selama pengembangan.
+
+\subsubsection{Data untuk Pengembangan Model}
+
+Untuk keperluan pengembangan model, penelitian ini menggunakan data istilah klinis dalam bahasa Indonesia yang dikumpulkan dari empat sumber utama.
+
+\begin{enumerate}
+    \item Data terminologi medis standar, yaitu SNOMED CT, LOINC, dan ICD-10, yang diakses dari SATUSEHAT dan sumber terminologi observasional terbuka yang relevan.
+    \item Kamus data elektronik rekam medis (RME) lokal yang diperoleh dari sampel rumah sakit atau puskesmas di Indonesia yang telah menerapkan RME. Data ini mencakup istilah diagnosis, prosedur, observasi, dan obat-obatan dalam format asli sesuai entri tenaga kesehatan.
+    \item Dataset dari penelitian Gilani, seperti NCBI Corpus dan BC5CDR, untuk mendukung pengembangan awal dan pengujian komponen tertentu \citep{gilani_cde-mapper_2025}.
+    \item Platform konsultasi kesehatan daring. Data anonim dari sesi tanya jawab tentang kesehatan dikumpulkan untuk mendapatkan representasi bahasa sehari-hari pasien, termasuk variasi istilah, singkatan informal, dan kesalahan ejaan. Data ini penting untuk menguji ketahanan model terhadap variasi leksikal di dunia nyata \citep{purwitasari_comparison_2023}.
+\end{enumerate}
+
+\subsubsection{Data untuk Evaluasi}
+
+Untuk keperluan evaluasi yang valid, sebuah dataset \textit{gold standard} dikembangkan dengan melibatkan tenaga medis, seperti dokter atau perekam medis. Prosesnya meliputi:
+
+\begin{enumerate}
+    \item \textbf{Seleksi sampel.} Memilih sampel istilah dari data sumber, misalnya 100--200 istilah, yang mewakili variasi tantangan, seperti istilah standar, singkatan, dan kesalahan eja.
+    \item \textbf{Anotasi manual.} Minimal dua anotator, misalnya dokter dan/atau perekam medis, melakukan pemetaan secara terpisah untuk menghasilkan label \textit{gold standard}.
+    \item \textbf{Validasi antar-anotator.} Tingkat kesepakatan antar-anotator dihitung untuk memastikan kualitas dan konsistensi dataset \textit{gold standard}.
+\end{enumerate}
+
+\subsection{\textit{Baseline}, Model Pembanding, dan Varian (\textit{Ablation Study})}
+
+Untuk menilai kontribusi pendekatan \textit{hybrid}, performa model usulan dibandingkan dengan \textit{baseline} dan varian berikut.
+
+\begin{enumerate}
+    \item \textbf{\textit{Baseline lexical}.} Pencarian string atau \textit{fuzzy matching} pada label terminologi, misalnya \textit{exact match} dengan normalisasi sederhana.
+    \item \textbf{\textit{Baseline dense retrieval}.} \textit{Retrieval} berbasis embedding saja, tanpa \textit{sparse retriever} dan tanpa \textit{reranking} LLM.
+    \item \textbf{\textit{Baseline sparse retrieval}.} \textit{Retrieval} leksikal saja, tanpa embedding.
+    \item \textbf{LLM-only.} Ekstraksi atau penentuan kode dengan LLM tanpa \textit{retrieval}, untuk mengukur dampak RAG terhadap halusinasi dan akurasi \citep{gilani_cde-mapper_2025,yu_large_2026}.
+    \item \textbf{\textit{Ablation-1}.} Tanpa modul \textit{long-text entity extraction}, sehingga \textit{input} hanya istilah pendek.
+    \item \textbf{\textit{Ablation-2}.} Tanpa \textit{query decomposition} untuk entitas komposit.
+    \item \textbf{\textit{Ablation-3}.} Tanpa \textit{filtering} berbasis \textit{constraint} terminologi, sehingga hanya mengandalkan Top-\textit{k retrieval}.
+    \item \textbf{\textit{Ablation-4}.} Tanpa \textit{knowledge reservoir}, untuk mengukur dampak pembelajaran inkremental.
+\end{enumerate}
+
+\subsection{Metrik Evaluasi}
+
+Metrik evaluasi pada penelitian ini dirancang untuk mengukur performa \textit{framework} secara komprehensif pada dua tingkat, yaitu tingkat pemetaan kandidat kode dan tingkat performa \textit{end-to-end} dari ekstraksi hingga normalisasi konsep. Pemilihan metrik ini mengikuti praktik evaluasi pada tugas \textit{clinical concept normalization}, \textit{ontology alignment}, dan \textit{retrieval-augmented terminology mapping}, yang menekankan ketepatan kandidat teratas, ketercakupan kandidat benar dalam Top-\textit{k}, keseimbangan antara ketepatan dan kelengkapan ekstraksi, serta efisiensi inferensi \citep{chen_clinical_2020,he_bertmap_2022,gilani_cde-mapper_2025,park_development_2026,yu_large_2026}. Definisi konseptual dan persamaan matematis untuk metrik-metrik tersebut telah dibahas pada Bab III, sehingga pada bagian ini rumus tidak dituliskan ulang, tetapi direferensikan sesuai label persamaan yang tersedia.
+
+\begin{enumerate}
+    \item \textbf{Accuracy@1.} Untuk mengevaluasi ketepatan kandidat teratas, penelitian ini menggunakan metrik akurasi sebagaimana didefinisikan pada Persamaan~\ref{eq:accuracy}. Pada implementasinya, akurasi digunakan untuk menilai proporsi pemetaan yang benar pada kandidat utama yang dipilih sistem \citep{chen_clinical_2020,gilani_cde-mapper_2025}.
+
+    \item \textbf{Accuracy@\textit{k}.} Untuk menilai apakah kode \textit{gold standard} muncul di dalam himpunan Top-\textit{k} kandidat, penelitian ini menggunakan metrik \textit{Top-k accuracy} sebagaimana dinyatakan pada Persamaan~\ref{eq:topk}. Metrik ini relevan karena pada skenario \textit{retrieval} kandidat benar tidak selalu berada pada peringkat pertama, tetapi tetap perlu muncul dalam daftar kandidat teratas untuk ditinjau lebih lanjut \citep{he_bertmap_2022,gilani_cde-mapper_2025,park_development_2026}.
+
+    \item \textbf{Precision, Recall, dan F1-score.} Untuk skenario \textit{end-to-end} pada teks panjang, ketika sistem harus mengekstraksi entitas klinis sekaligus memetakannya ke terminologi target, penelitian ini menggunakan \textit{precision}, \textit{recall}, dan F1-score yang masing-masing dirumuskan pada Persamaan~\ref{eq:precision}, Persamaan~\ref{eq:recall}, dan Persamaan~\ref{eq:f1score}. Ketiga metrik ini digunakan untuk menilai keseimbangan antara ketepatan prediksi, kelengkapan temuan entitas, dan performa keseluruhan sistem \citep{chen_clinical_2020}.
+
+    \item \textbf{Coverage.} Untuk mengetahui sejauh mana sistem mampu memberikan setidaknya satu kandidat kode valid setelah tahap \textit{retrieval} dan \textit{filtering}, penelitian ini menggunakan metrik \textit{coverage} sebagaimana didefinisikan pada Persamaan~\ref{eq:coverage}. Metrik ini penting karena sistem yang tampak akurat pada kasus tertentu belum tentu memiliki keluasan cakupan yang baik terhadap seluruh data masukan \citep{gilani_cde-mapper_2025,park_development_2026}.
+
+    \item \textbf{Agreement atau consistency.} Untuk menilai kestabilan keputusan sistem, penelitian ini menggunakan dua ukuran yang saling melengkapi, yaitu konsistensi hasil \textit{reranking} sebagaimana dirumuskan pada Persamaan~\ref{eq:consistency} dan koefisien Kappa untuk kesepakatan antar-anotator sebagaimana dinyatakan pada Persamaan~\ref{eq:kappa}. Penggunaan dua ukuran ini penting karena penelitian memerlukan \textit{gold standard} yang andal sekaligus sistem yang stabil ketika dihadapkan pada istilah atau dokumen yang serupa \citep{januel_improved_2011,gilani_cde-mapper_2025}.
+
+    \item \textbf{Efisiensi.} Selain akurasi, penelitian ini juga mengukur efisiensi komputasi melalui rata-rata waktu inferensi sebagaimana dirumuskan pada Persamaan~\ref{eq:efficiency-time}. Untuk membandingkan peningkatan efisiensi terhadap metode pembanding, digunakan pula persentase percepatan sebagaimana dinyatakan pada Persamaan~\ref{eq:speedup}. Kedua ukuran ini diperlukan agar model yang diusulkan tidak hanya akurat, tetapi juga layak diterapkan pada skenario penggunaan praktis \citep{gilani_cde-mapper_2025,park_development_2026}.
+\end{enumerate}
+
+Melalui kombinasi metrik tersebut, evaluasi pada penelitian ini tidak hanya menilai apakah sistem menghasilkan kode yang benar, tetapi juga menilai kemampuan sistem menyediakan kandidat yang relevan, mengekstraksi entitas secara lengkap, mempertahankan konsistensi hasil, dan bekerja secara efisien pada skenario penggunaan nyata.
+
+\subsection{Prosedur Pengujian dan Analisis Hasil}
+
+\begin{enumerate}
+    \item \textbf{Konfigurasi.} Menetapkan variasi model, yaitu \textit{baseline} versus usulan, parameter \textit{retrieval} (Top-\textit{k}), \textit{threshold filtering}, dan \textit{prompt} atau format \textit{output} untuk LLM.
+    \item \textbf{Eksekusi pada data uji.} Menjalankan seluruh model pada dataset uji dan menyimpan \textit{output} terstruktur, yaitu kandidat, skor, keputusan, dan log komponen.
+    \item \textbf{Perhitungan metrik.} Menghitung Accuracy@\textit{k}, Precision, Recall, F1, \textit{coverage}, serta efisiensi komputasi.
+    \item \textbf{\textit{Ablation} dan uji sensitivitas.} Menjalankan varian \textit{ablation} untuk mengukur kontribusi modul, seperti \textit{decomposition}, \textit{filtering}, \textit{reranking}, dan \textit{reservoir}, serta menguji sensitivitas terhadap perubahan \textit{threshold} dan Top-\textit{k}.
+    \item \textbf{\textit{Error analysis}.} Mengelompokkan kesalahan menjadi: (a) \textit{error} ekstraksi, yaitu entitas terlewat atau salah tipe; (b) \textit{error retrieval}, yaitu kandidat benar tidak muncul; (c) \textit{error reranking}, yaitu kandidat benar ada tetapi tidak dipilih; (d) \textit{error} terminologi, yaitu tidak ada padanan; dan (e) \textit{error} bahasa, seperti singkatan, \textit{typo}, atau ambiguitas. Hasil analisis digunakan untuk menyusun rekomendasi perbaikan iteratif pada komponen dan \textit{guideline} anotasi.
+\end{enumerate}
+
+\section{Jadwal Penelitian}
+
+Tahapan kegiatan penelitian dan rencana jadwal pelaksanaan untuk setiap tahapan kegiatan dalam penelitian ini secara ringkas ditunjukkan pada Tabel~\ref{tab:jadwal-penelitian}.
+
+\begin{table}[H]
+\centering
+\caption{Rencana jadwal pelaksanaan kegiatan penelitian}
+\label{tab:jadwal-penelitian}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.4cm} *{12}{c} >{\raggedright\arraybackslash}p{6.1cm}}
+\toprule
+\textbf{Jenis Kegiatan} & \multicolumn{4}{c}{\textbf{Tahun I}} & \multicolumn{4}{c}{\textbf{Tahun II}} & \multicolumn{4}{c}{\textbf{Tahun III}} & \textbf{Indikator} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+& \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \\
+\midrule
+\textbf{Tahap I} & & & & & & & & & & & & & \\
+\midrule
+Kajian teori dan studi pustaka & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & & & & & & & & & Diperbaruinya referensi sebagai penunjang tinjauan pustaka \\
+\midrule
+Menentukan \textit{roadmap} penelitian & $\checkmark$ & $\checkmark$ & & & & & & & & & & & \textit{Roadmap} penelitian dan draf proposal \\
+\midrule
+Ujian proposal & & & $\checkmark$ & & & & & & & & & & Ujian pra-komprehensif dan komprehensif \\
+\midrule
+Revisi proposal & & & & $\checkmark$ & & & & & & & & & Proposal yang telah direvisi dan ditandatangani tim penguji \\
+\midrule
+\textbf{Tahap II} & & & & & & & & & & & & & \\
+\midrule
+Adaptasi model CDE-Mapper & & & & & $\checkmark$ & $\checkmark$ & $\checkmark$ & & & & & & Terbentuknya model dan prototipe CDE-Mapper untuk teks klinis panjang; naskah publikasi \\
+\midrule
+Pembangunan dataset & & & & & $\checkmark$ & $\checkmark$ & & & & & & & Dataset untuk pengujian dan pelatihan model siap digunakan \\
+\midrule
+Implementasi \textit{preprocessing} teks klinis & & & & & & $\checkmark$ & $\checkmark$ & & & & & & Terbentuknya model untuk \textit{preprocessing} teks klinis panjang dalam bahasa Indonesia \\
+\midrule
+Implementasi inti model & & & & & & $\checkmark$ & $\checkmark$ & $\checkmark$ & & & & & Terbentuknya model adaptasi CDE-Mapper \\
+\midrule
+Pengujian model & & & & & & & $\checkmark$ & $\checkmark$ & $\checkmark$ & & & & Pengujian model pada berbagai skenario uji; naskah publikasi \\
+\midrule
+Pembuatan laporan akhir dan persiapan ujian tertutup & & & & & & & & $\checkmark$ & $\checkmark$ & $\checkmark$ & & & Draf laporan disertasi \\
+\midrule
+\textbf{Tahap III} & & & & & & & & & & & & & \\
+\midrule
+Penilaian dan kelayakan disertasi & & & & & & & & & $\checkmark$ & $\checkmark$ & & & Laporan disertasi layak untuk diujikan \\
+\midrule
+Ujian tertutup & & & & & & & & & & & $\checkmark$ & & Terlaksananya ujian tertutup \\
+\midrule
+Revisi hasil ujian tertutup & & & & & & & & & & & & $\checkmark$ & Laporan disertasi disetujui oleh tim penguji \\
+\bottomrule
+\end{tabular}%
+}
+\normalsize
+\end{table}

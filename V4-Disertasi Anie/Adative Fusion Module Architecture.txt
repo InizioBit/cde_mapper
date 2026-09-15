@@ -1,0 +1,50 @@
+graph TD
+    subgraph "Input Image"
+        I[Input Image<br>e.g. 800×1333×3]
+    end
+
+    subgraph "Dual-Branch Encoder"
+        direction TB
+        CNN[ResNet-50 Backbone] -->|Stage 1 / C2| CNN_P2[256 ch, 1/4 res]
+        CNN -->|Stage 2 / C3| CNN_P3[512 ch, 1/8 res]
+        CNN -->|Stage 3 / C4| CNN_P4[1024 ch, 1/16 res]
+        CNN -->|Stage 4 / C5| CNN_P5[2048 ch, 1/32 res]
+
+        SWIN[Swin-T Backbone] -->|Stage 1| SWIN_S1[96 ch, 1/4 res]
+        SWIN -->|Stage 2| SWIN_S2[192 ch, 1/8 res]
+        SWIN -->|Stage 3| SWIN_S3[384 ch, 1/16 res]
+        SWIN -->|Stage 4| SWIN_S4[768 ch, 1/32 res]
+    end
+
+    subgraph "Adaptive Fusion Module"
+        direction LR
+        AF1[Adaptive Fusion<br>P2 level] --> F2[P2_fused]
+        AF2[Adaptive Fusion<br>P3 level] --> F3[P3_fused]
+        AF3[Adaptive Fusion<br>P4 level] --> F4[P4_fused]
+        AF4[Adaptive Fusion<br>P5 level] --> F5[P5_fused]
+
+        CNN_P2 --> AF1
+        SWIN_S1 --> AF1
+        CNN_P3 --> AF2
+        SWIN_S2 --> AF2
+        CNN_P4 --> AF3
+        SWIN_S3 --> AF3
+        CNN_P5 --> AF4
+        SWIN_S4 --> AF4
+    end
+
+    F2 & F3 & F4 & F5 --> FPN[FPN Neck<br>Feature Pyramid Network]
+
+    FPN -->|Multi-Scale Features| HEAD["Multi-Scale Detection Head<br>(RPN + RoI Align + Box/Mask Heads)"]
+
+    HEAD --> OUT[Output: Boxes + Masks + Classes]
+
+    DWM[Dynamic Weighting Mechanism<br>Class-aware Attention] -.-> AF1 & AF2 & AF3 & AF4
+    style DWM fill:#f9f,stroke:#333,stroke-width:2px
+
+    classDef cnn fill:#aaddff,stroke:#333
+    classDef swin fill:#bbffbb,stroke:#333
+    classDef fusion fill:#ffddff,stroke:#333
+    class CNN,CNN_P2,CNN_P3,CNN_P4,CNN_P5 cnn
+    class SWIN,SWIN_S1,SWIN_S2,SWIN_S3,SWIN_S4 swin
+    class AF1,AF2,AF3,AF4,F2,F3,F4,F5 fusion

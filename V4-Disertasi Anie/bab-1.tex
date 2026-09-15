@@ -1,0 +1,135 @@
+\chapter{PENDAHULUAN}
+
+% Penanda audit sitasi menggunakan awalan TODO-SITASI-TAMBAHAN.
+% Komentar tersebut menunjukkan klaim yang memerlukan sumber BibTeX baru atau lebih tepat.
+
+\section{Latar Belakang}
+
+Interoperabilitas sistem informasi kesehatan merupakan kebutuhan kritis dalam ekosistem kesehatan modern, di mana data medis harus dapat dipertukarkan dan diintegrasikan antar berbagai sistem dan institusi \citep{ayuningtyas_bringing_2025}. Tanpa interoperabilitas, data medis akan terisolasi dalam silo-silo sistem yang menghambat integrasi dan pemanfaatan data secara holistik untuk kepentingan klinis maupun penelitian \citep{rinaldi_towards_2023}. Dalam konteks tersebut, pertukaran data saja belum cukup. Interoperabilitas baru bernilai apabila data yang dipertukarkan dipahami dengan makna yang sama oleh sistem yang berbeda.
+
+Makna yang sama tersebut berkaitan langsung dengan konsistensi semantik, yaitu kemampuan sistem kesehatan yang berbeda untuk tidak hanya bertukar data secara struktural, tetapi juga memahami arti data tersebut secara konsisten. Tanpa konsistensi semantik, informasi klinis yang secara kasat mata tampak serupa dapat ditafsirkan secara berbeda oleh sistem yang berbeda, sehingga menurunkan kualitas integrasi data, analisis, dan pengambilan keputusan klinis. Karena itu, konsistensi semantik merupakan prasyarat utama bagi interoperabilitas yang benar-benar dapat digunakan.
+
+Fast Healthcare Interoperability Resource (FHIR), yang dikembangkan Health Level Seven (HL7), merupakan salah satu standar interoperabilitas untuk mendukung pertukaran data kesehatan dalam format digital secara syntactic dan semantic dan digunakan secara luas. Berdasarkan laporan dari HL7 International \& Firely pada bulan Mei 2025, paling tidak ada 52 negara yang dilaporkan menggunakan FHIR secara aktif, termasuk Indonesia (\url{https://hl7chile.cl/wp-content/uploads/2025/06/2025-State-of-FHIR-Survey-Report.pdf}). Apabila FHIR dapat dianggap sebagai framework pertukaran data, maka SNOMED CT (Systematized Nomenclature of Medicine-Clinical Terms), LOINC (Logical Observation Identifiers Names and Codes), ICD (International Statistical Classification of Diseases) adalah standar terminologi dan klasifikasi klinis/ data yang mengisi FHIR.
+
+Penggunaan standar terminologi klinis yang diakui secara internasional tersebut memastikan bahwa konsep klinis direpresentasikan secara seragam, menghilangkan ambiguitas dan memungkinkan pertukaran data yang akurat lintas platform \citep{bidgood_snomed_1998}. Dengan kata lain, interoperabilitas teknis tanpa standardisasi terminologi tetap akan menyisakan persoalan pada level makna klinis.
+
+SNOMED CT adalah terminologi klinis paling komprehensif dan multibahasa di dunia yang dikelola oleh SNOMED International, dirancang untuk merepresentasikan konsep klinis secara detail, mulai dari gejala, diagnosis, prosedur, temuan, hingga obat-obatan, dengan hierarki dan relasi semantik yang kaya (\url{https://www.snomed.org/}). Setiap konsep dalam SNOMED CT memiliki pengidentifikasi permanen yang secara unik merepresentasikan makna klinis tertentu. Di sisi lain, LOINC adalah standar yang dikembangkan oleh Regenstrief Institute untuk mengidentifikasi hasil observasi laboratorium dan klinis secara universal, seperti tes darah, urinalisis, tanda vital, dan parameter fisiologis (\url{https://loinc.org/}). LOINC menyediakan kode universal untuk setiap jenis pengukuran atau observasi, sehingga memfasilitasi pertukaran dan penggabungan hasil klinis untuk perawatan, manajemen outcomes, dan penelitian \citep{ayuningtyas_bringing_2025}. Sementara itu, ICD adalah sistem klasifikasi penyakit yang dikelola oleh Organisasi Kesehatan Dunia (WHO), digunakan terutama untuk koding diagnosis dan prosedur kesehatan dengan tujuan statistik, manajemen kesehatan, dan pembiayaan. Perbedaan peran SNOMED CT, LOINC, dan ICD menunjukkan bahwa kebutuhan standarisasi data klinis tidak dapat dipenuhi oleh satu sistem terminologi saja: SNOMED CT unggul dalam kedalaman klinis, LOINC dalam identifikasi observasi, dan ICD dalam klasifikasi administratif dan epidemiologis. Bahkan secara resmi dinyatakan bahwa dengan kelengkapan terminologinya, SNOMED-CT dapat dipetakan ke standar internasional lain seperti ICD-10 dan ICD-9 CM. Tabel 1.1 menggambarkan perbedaan representasi kode untuk Diabetes Melitus Tipe 2 di ketiga standar tersebut, yang secara visual mempertegas bahwa masing-masing terminologi memiliki fungsi yang spesifik dan saling melengkapi, bukan menggantikan.
+% TODO-SITASI-TAMBAHAN: Tambahkan sumber resmi yang mendukung pemetaan SNOMED CT ke ICD-10/ICD-9-CM serta sumber kode pada Tabel 1.1.
+
+\begin{table}[H]
+\centering
+\fontsize{10pt}{11pt}\selectfont
+\setlength{\tabcolsep}{4pt}
+\caption{Perbedaan Representasi Kode Diabetes Melitus Tipe 2 di SNOMED CT, LOINC, dan ICD-10}
+\label{tab:perbedaan-snomed-loinc-icd}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Aspek Informasi Pasien} & \centering\textbf{SNOMED CT}\arraybackslash & \centering\textbf{LOINC}\arraybackslash & \centering\textbf{ICD-10}\arraybackslash \\
+\midrule
+\textbf{Apa yang dikodekan?} & Konsep klinis (diagnosis, gejala, temuan, prosedur) & Pertanyaan observasi (tes, pengukuran, dokumen) & Diagnosis (penyakit, cedera, penyebab kematian) \\
+\midrule
+\textbf{Kode \& Nama} & 44054006 -- Type 2 diabetes mellitus & 14771-9 -- Glucose [Mass/volume] in Capillary blood by Glucometer -- fasting & E11.9 -- Type 2 diabetes mellitus without complications \\
+\midrule
+\multirow{5}{=}{\centering\textbf{Informasi tambahan yang bisa ditangkap}} & Lokasi anatomi (pankreas) & Nilai hasil tes (numerik: 126 mg/dL) & Komplikasi spesifik (E11.2 dengan komplikasi ginjal) \\
+\cmidrule(l){2-4}
+ & Severitas (misal: terkontrol/tidak) & Waktu pengambilan sampel (puasa, 2 jam \textit{post prandial}) & Ketoasidosis (E11.1) \\
+\cmidrule(l){2-4}
+ & Etiologi (misal: karena obesitas) & Metode pengukuran (glukometer, serum) & Koma diabetik (E11.0) \\
+\cmidrule(l){2-4}
+ & Komplikasi (nefropati, retinopati) & Satuan (mg/dL, mmol/L) & Tidak dapat menangkap detail anatomi atau etiologi secara rinci \\
+\cmidrule(l){2-4}
+ & Riwayat pengobatan & -- & -- \\
+\bottomrule
+\end{tabularx}
+\renewcommand{\arraystretch}{1}
+\setlength{\tabcolsep}{6pt}
+\end{table}
+
+Dalam konteks interoperabilitas kesehatan nasional, sebagaimana diimplementasikan melalui platform SATUSEHAT, ketiganya digunakan secara simultan, dimana data diagnosis wajib merujuk pada ICD-10, data observasi/laboratorium menggunakan LOINC, dan terminologi klinis rinci menggunakan SNOMED CT. Meskipun demikian, \textbf{SATUSEHAT belum menyediakan fitur pemetaan otomatis yang dapat mengonversi secara langsung antar terminologi. Tetapi} infrastruktur pendukung pemetaan telah dipersiapkan dalam bentuk panduan dan dokumentasi, di antaranya: (1) panduan penggunaan SNOMED-CT \textit{terminology browser} untuk melakukan pemetaan antara kode lokal dengan SNOMED-CT \textit{concept} yang sepadan; (2) buku panduan penggunaan terminologi LOINC yang memuat langkah-langkah pemetaan LOINC; (3) video tutorial pembelajaran mandiri untuk LOINC dan panduan mendaftar lisensi afiliasi SNOMED CT; serta (4) dokumentasi SNOMED-CT yang menjelaskan bahwa terminologi ini dapat dipetakan ke standar internasional lain seperti ICD-10, ICD-9 CM, dan LOINC. \textbf{Platform menyediakan "peta jalan" dan alat bantu, namun proses pemetaan dari data lokal ke terminologi standar tetap menjadi tanggung jawab pengembang/vendor EMR untuk dilakukan secara manual atau melalui sistem yang mereka bangun sendiri.}
+% TODO-SITASI-TAMBAHAN: Paragraf tentang kewajiban terminologi, ketiadaan pemetaan otomatis, dan dokumentasi SATUSEHAT belum memiliki sitasi pada Markdown. Tambahkan BibTeX panduan implementasi resmi SATUSEHAT.
+
+Kesenjangan ini memaksa pengembang untuk melakukan proses pemetaan secara manual, yang menjadi salah satu \textit{pain points} utama sebagaimana diidentifikasi dalam penelitian \citet{heryawan_fast_2025}. Urgensi otomasi pemetaan antar terminologi klinis semakin mendesak. Tanpa pemetaan terstruktur, data lintas fasilitas tidak dapat diolah secara bermakna, menghambat interoperabilitas sebagai fondasi sistem kesehatan digital nasional.
+
+Hal yang harus dipertimbangkan adalah bahwa pemetaan terminologi klinis menuntut kemampuan khusus, berbeda dengan pemetaan di bidang lain (misalnya e-commerce, perpustakaan, atau pendidikan), karena hal-hal berikut.
+
+\begin{enumerate}
+    \item Perlunya pemahaman struktur ontologi yang dalam (relasi, atribut, post-coordination) \citep{kate_automatic_2020,park_development_2026}.
+    \item Kemampuan menangani istilah komposit melalui dekomposisi dan penalaran \citep{gilani_cde-mapper_2025}.
+    \item Perlunya ekstraksi entitas dari teks naratif panjang sebelum pemetaan \citep{eslami_hybrid_2026,peterson_automating_2020}.
+    % TODO-SITASI-TAMBAHAN: Peterson dan Liu (2020) membahas ringkasan masalah klinis yang pendek, bukan dokumen klinis panjang; tambahkan sumber khusus long-text entity extraction.
+    \item Memiliki toleransi terhadap variasi bahasa ekstrem (teks panjang, singkatan, typo, istilah lokal, multilingual) \citep{chen_automatic_2022}.
+    % TODO-SITASI-TAMBAHAN: Chen dkk. (2022) relevan untuk istilah klinis berbahasa Tionghoa, tetapi tidak mendukung seluruh aspek teks panjang, typo, istilah lokal, dan multilingual.
+    \item Akurasi sangat tinggi karena berdampak langsung pada keselamatan pasien \citep{yu_large_2026}.
+    % TODO-SITASI-TAMBAHAN: Yu dkk. (2026) mengevaluasi pemetaan LOINC oleh LLM, tetapi tidak secara langsung membuktikan dampak kesalahan pemetaan terhadap keselamatan pasien.
+    \item Kepatuhan terhadap standar dan regulasi (misalnya FHIR). Pertukaran data kesehatan wajib mengikuti standar interoperabilitas tertentu. Di Indonesia, SATUSEHAT mewajibkan penggunaan format FHIR dan terminologi SNOMED CT, LOINC, ICD-10.
+    \item Evaluasi oleh ahli klinis karena tidak ada gold standard otomatis \citep{chen_automatic_2022,eslami_hybrid_2026,gilani_cde-mapper_2025}.
+\end{enumerate}
+
+Untuk mengatasi tantangan tersebut, metode pemetaan otomatis terminologi medis berevolusi dari pendekatan rule-based dan leksikal (transparan tetapi rentan variasi bahasa dan skalabilitas rendah), ke metode berbasis machine learning dan deep learning (lebih baik dalam variasi leksikal tetapi membutuhkan data latih besar dan komputasi intensif), hingga era terkini dengan pemanfaatan Large Language Models (LLM) dan Retrieval-Augmented Generation (RAG) untuk menangani kompleksitas dan variasi data klinis secara lebih cerdas.
+
+Pendekatan rule-based dan leksikal untuk mapping konsep memiliki kelebihan dengan aturannya yang transparan, mudah dilacak, tidak memerlukan data latih yang tinggi dan dengan pola yang tervalidasi dapat menghasilkan akurasi tinggi, tetapi memerlukan waktu dan biaya pengembangan besar, rentan terhadap variasi bahasa (seperti sinonim, singkatan dan ekspresi informal), dan skalabilitas (adaptasi) rendah \citep{kim_automating_2014,meizoso_automated_2011}.
+
+Kelemahan rule-based diatasi oleh pendekatan machine learning, tetapi ternyata memerlukan data latih berlabel dalam jumlah cukup dan memiliki ketergantungan pada kualitas fitur \citep{agrawal_evaluating_2018,januel_improved_2011}. Sementara itu, mapping dengan pendekatan deep learning, terutama dengan transformer telah berhasil membuat automatic feature learning, dan dengan NER (Named Entity Recognition) telah mampu menangkap konteks semantik yang kompleks. Akan tetapi pendekatan ini memerlukan data latih yang sangat besar, komputasi intensif (daya komputasi tinggi) dan rentan terhadap bias data \citep{hristov_application_2021,soriano_snomed2vec_2019,zhou_novel_2024}.
+% TODO-SITASI-TAMBAHAN: Agrawal (2018) membahas inkonsistensi pemodelan SNOMED CT dan Januel dkk. (2011) membahas akurasi koding ICD-10; keduanya tidak mendukung klaim kebutuhan data latih berlabel dan ketergantungan fitur pada machine learning.
+% TODO-SITASI-TAMBAHAN: Hristov dkk. (2021), Soriano dkk. (2019), dan Zhou dkk. (2024) mendukung penggunaan deep learning/embedding/transformer, tetapi tidak seluruhnya mendukung klaim komputasi intensif dan bias data.
+
+Meskipun NER merupakan komponen penting dalam pipeline pemrosesan bahasa klinis, ia harus diintegrasikan dengan metode lain seperti semantic similarity matching, knowledge graph retrieval, atau RAG berbasis LLM untuk mencapai pemetaan terminologi yang akurat, terkoneksi, dan siap interoperabilitas. Penelitian terkini pun mengonfirmasi bahwa pendekatan hybrid yang menggabungkan rule-based, NER, dan retrieval semantik memberikan hasil yang lebih robust, khususnya dalam konteks bahasa rendah sumber dan data klinis yang heterogen \citep{chen_clinical_2020,gilani_cde-mapper_2025,pezoulas_hybrid_2021}.
+
+Beberapa penelitian juga telah dilakukan dengan kombinasi pendekatan yang telah disebutkan sebelumnya. Salah satunya adalah penelitian yang menunjukkan keunggulan mapping berbasis ontologi (gabungan graph dan deep learning mapping terms ke konsep embeddings SNOMED CT) untuk akurasi semantik dan menunjukkan hasil yang lebih baik dari corpus-based untuk similarity \& normalization \citep{zahra_obtaining_2024}.
+
+Penelitian lain dilakukan dengan mengembangkan metode transcoding LOINC yang mempertimbangkan hierarki dan korelasi antar komponen kode LOINC. Penelitian tersebut bukan hanya berupa klasifikasi multi-label sederhana, tetapi juga untuk meningkatkan akurasi dan efisiensi, sebagai alternatif hemat biaya bagi model bahasa yang sangat baik \citep{michel-picque_classifier_2024}.
+
+Di sisi lain, tren penggunaan LLM juga mempengaruhi metode untuk mapping terminologi klinis. Evaluasi teknik prompt engineering pada LLM standar, fine-tuning, dan Retrieval-Augmented Generation (RAG) telah dilakukan untuk meningkatkan akurasi mapping terminology medis lokal ke SNOMED CT. Hasilnya menunjukkan bahwa GPT-4 terutama dengan RAG, jauh lebih baik dari baseline LLM biasa, dan relevan untuk rumah sakit di negara non-Inggris seperti Korea \citep{huh_comparative_2025}. Meskipun demikian, masih terdapat kendala dalam specificity (misalnya, mapping terlalu umum). Penelitian tersebut menekankan potensi AI-human collaboration untuk standarisasi data kesehatan, dengan saran penelitian lanjutan untuk refine specificity dan validasi klinis.
+
+Penelitian terkini menunjukkan bahwa pendekatan hibrida yang menggabungkan rule-based, NER, dan retrieval semantik memberikan hasil lebih robust, terutama untuk bahasa dengan sumber daya rendah dan data klinis heterogen \citep{chen_clinical_2020,gilani_cde-mapper_2025,pezoulas_hybrid_2021}. Salah satu terobosan penting adalah CDE-Mapper \citep{gilani_cde-mapper_2025} yang menggunakan LLM dan RAG untuk memetakan Clinical Data Elements (CDE) ke beberapa controlled vocabularies (SNOMED CT, LOINC, ICD-10, dll.). Hasil penelitiannya terbukti lebih unggul dari metode baseline, terutama untuk CDE composite. Namun, CDE-Mapper memiliki tiga keterbatasan utama yang menjadi celah penelitian (research gap) dan berhubungan langsung dengan kebutuhan konteks Indonesia.
+
+Pertama, meskipun CDE-Mapper mampu memetakan ke banyak standar, mayoritas penelitian pemetaan terminologi klinis masih berfokus pada SNOMED CT saja, padahal interoperabilitas melalui SATUSEHAT menuntut pemetaan simultan ke SNOMED CT, LOINC, dan ICD-10 secara terpadu. Kedua, CDE-Mapper dirancang khusus untuk memproses item data spesifik (CDE) dan tidak dirancang untuk menangani teks panjang (long text) yang menjadi ciri khas dokumen rekam medis seperti catatan dokter, resume kepulangan, atau catatan perawatan. Dokumen semacam itu dapat berisi puluhan entitas klinis dalam kalimat kompleks, sehingga diperlukan integrasi modul long-text entity extraction (NER) berbasis LLM sebelum pemetaan. Ketiga, CDE-Mapper diuji pada teks bahasa Inggris. Untuk dapat diterapkan di Indonesia, seluruh komponen retrieval ensemble perlu disesuaikan dengan karakteristik linguistik bahasa Indonesia, keterbatasan sumber daya terminologi (ketersediaan SNOMED CT dan LOINC dalam bahasa Indonesia masih terbatas), serta variasi istilah lokal yang luas.
+
+Penelitian terkini juga mengonfirmasi bahwa performa model canggih sekalipun dapat menurun secara signifikan saat menghadapi variasi leksikal atau saat diaplikasikan pada data non-Inggris \citep{gallifant_language_2024,michel-picque_classifier_2024,rouhizadeh_large_2025}. Oleh karena itu, dibutuhkan pendekatan yang lebih efisien, ringan secara komputasi, namun tetap mampu menangani karakteristik linguistik dan terminologi spesifik bahasa Indonesia untuk memetakan istilah klinis lokal ke standar internasional \citep{gehrmann_catnip_2025,huh_comparative_2025}. Situasi ini membuka peluang penelitian untuk mengembangkan solusi pemetaan yang diadaptasi khusus untuk konteks Indonesia sehingga potensi interoperabilitas data kesehatan mencapai potensi penuhnya.
+% TODO-SITASI-TAMBAHAN: Gehrmann dkk. (2025) dan Huh (2025) relevan untuk otomasi pemetaan istilah lokal/non-Inggris, tetapi tidak secara langsung mendukung klaim komputasi ringan maupun konteks linguistik bahasa Indonesia.
+
+\section{Rumusan Masalah}
+
+Berdasarkan latar belakang, dapat dirumuskan beberapa permasalahan utama dalam pemetaan terminologi klinis untuk konteks interoperabilitas data klinis di Indonesia sebagai berikut.
+
+\begin{enumerate}
+    \item Interoperabilitas data kesehatan menuntut pemetaan otomatis lintas standar. Namun, mayoritas penelitian fokus pada SNOMED CT, sehingga diperlukan pipeline terpadu untuk pemetaan ke SNOMED CT, LOINC, dan ICD-10 secara simultan.
+    \item CDE-Mapper \citep{gilani_cde-mapper_2025} efektif untuk item data spesifik tetapi tidak menangani teks panjang rekam medis. Oleh karena itu, diperlukan integrasi modul \textit{long-text entity extraction} (NER) berbasis LLM untuk memetakan seluruh CDE dari satu dokumen klinis.
+    \item CDE-Mapper diuji pada teks Inggris. Agar dapat diterapkan di Indonesia, komponen retrieval ensemble perlu disesuaikan untuk teks klinis bahasa Indonesia mengingat perbedaan linguistik, keterbatasan terminologi, dan variasi istilah lokal.
+\end{enumerate}
+
+\section{Tujuan Penelitian}
+
+Penelitian ini bertujuan untuk mengembangkan dan mengevaluasi sebuah framework adaptif untuk pemetaan terminologi klinis Bahasa Indonesia ke kosakata terkendali standar untuk mendukung interoperabilitas. Secara spesifik, tujuan penelitian adalah sebagai berikut.
+
+\begin{enumerate}
+    \item Memodifikasi arsitektur CDE-Mapper agar mampu melakukan pemetaan simultan istilah klinis berbahasa Indonesia ke tiga standar terminologi sekaligus, yaitu SNOMED CT, LOINC, dan ICD-10.
+    \item Mengadaptasi CDE-Mapper dengan integrasi modul \textit{long-text entity extraction} (NER) berbasis LLM untuk pengenalan data klinis dari teks panjang.
+    \item Membangun dan mengintegrasikan komponen retrieval ensemble dalam arsitektur CDE-Mapper agar mampu memproses teks klinis berbahasa Indonesia.
+\end{enumerate}
+
+\section{Manfaat Penelitian}
+
+Penelitian ini diharapkan dapat memberikan kontribusi berupa solusi yang lebih terjangkau dan praktis untuk standardisasi data klinis di Indonesia, mendukung integrasi data, penelitian translasional, dan pada akhirnya meningkatkan pelayanan kesehatan. Manfaat secara teoritis dan praktis adalah sebagai berikut.
+
+\subsection{Manfaat Teoritis}
+
+\begin{enumerate}
+    \item Memperluas arsitektur RAG klinis ke domain teks panjang, retrieval ensemble untuk bahasa Indonesia, dan pemetaan simultan multi-standar.
+    \item Memberikan advancements dalam \textit{transfer learning} untuk \textit{clinical domain} bahasa non-Inggris.
+    \item Memberikan kontribusi pada \textit{theoretical framework} untuk \textit{semantic interoperability} dalam healthcare.
+\end{enumerate}
+
+\subsection{Manfaat Praktis}
+
+\begin{enumerate}
+    \item Meningkatkan kualitas dan konsistensi data nasional.
+    \item Meningkatkan efisiensi dokumentasi klinis.
+    \item Memfasilitasi pertukaran data yang \textit{meaningful} antar fasilitas kesehatan.
+    \item Mengurangi beban mapping manual bagi fasilitas kesehatan.
+    \item Meningkatkan akurasi \textit{clinical decision support systems}.
+    \item Memungkinkan \textit{real-world evidence research} berkualitas tinggi.
+    \item Mendukung \textit{clinical trials} dan \textit{observational studies}.
+    \item Memfasilitasi \textit{clinical data sharing} untuk \textit{research collaborations}.
+\end{enumerate}

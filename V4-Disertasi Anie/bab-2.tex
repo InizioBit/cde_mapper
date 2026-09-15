@@ -1,0 +1,189 @@
+\chapter{TINJAUAN PUSTAKA}
+
+\section{Pemetaan Terminologi Klinis}
+\label{sec:tinjauan-pemetaan-klinis}
+
+Pemetaan terminologi klinis menghubungkan istilah dalam sumber data dengan konsep pada kosakata terkendali agar informasi dapat dipahami secara konsisten. Dalam konteks Indonesia, kajian adopsi terminologi pada SATUSEHAT dan implementasi teknis interoperabilitas menunjukkan bahwa penggunaan standar pertukaran data masih perlu disertai penyelarasan istilah lokal dengan terminologi rujukan \citep{ayuningtyas_bringing_2025,heryawan_fast_2025}. Penelitian ini membatasi target pemetaan pada SNOMED CT, LOINC, dan ICD-10. Tinjauan berikut berfokus pada kemampuan metode dalam menangani variasi istilah, mempertahankan atribut klinis, dan memilih konsep yang sesuai.
+
+\subsection{Pendekatan Leksikal dan Berbasis Aturan}
+
+Pendekatan leksikal menggunakan label, sinonim, serta aturan normalisasi untuk mencari padanan konsep. \citet{meizoso_automated_2011} menggabungkan pencocokan leksikal dan struktur untuk memetakan \textit{observation archetypes} openEHR ke SNOMED CT. Pada evaluasi studi tersebut, presisi sekitar 94\% disertai \textit{recall} sekitar 69\%, sehingga ketepatan pasangan yang ditemukan belum menjamin seluruh konsep terpetakan. Pada diagnosis dermatologi berbentuk teks bebas, \citet{sitaru_digitalising_2024} memanfaatkan tabel sinonim, \textit{fuzzy matching}, dan normalisasi. Kedua studi memperlihatkan manfaat aturan yang dapat ditelusuri, sekaligus ketergantungannya pada cakupan istilah dan bentuk masukan.
+
+Pemetaan kode farmasi lokal ke SNOMED CT juga menunjukkan bahwa kecocokan tidak selalu berupa padanan eksak; hasil dapat berupa konsep yang lebih luas atau tidak memiliki padanan \citep{jung_mapping_2022}. Karena itu, penelitian ini menggunakan normalisasi dan aturan domain sebagai komponen pendukung, serta menempatkan pencocokan leksikal sebagai pembanding. Kandidat tetap perlu diperiksa berdasarkan konteks dan atribut agar kemiripan teks tidak langsung dianggap sebagai kesetaraan makna.
+
+\subsection{Representasi Semantik dan Struktur Konsep}
+
+Pendekatan representasi semantik memperluas pencarian terhadap istilah yang berbeda secara leksikal. \citet{zahra_obtaining_2024} membentuk \textit{embedding} istilah dari ontologi SNOMED CT dan menunjukkan manfaat struktur terminologi pada tugas kemiripan serta normalisasi istilah. Sementara itu, \citet{zhou_multiview_2022} menggabungkan deskripsi kode dengan pola kemunculan bersama dalam EHR untuk harmonisasi lintas institusi. Temuan tersebut mendukung penggunaan beberapa sumber bukti, tetapi penerapannya tetap bergantung pada kelengkapan struktur konsep dan kejelasan deskripsi lokal.
+
+Atribut dan relasi juga menentukan ketepatan pemetaan konsep komposit. \citet{kate_automatic_2020} menggunakan informasi SNOMED CT untuk menghasilkan representasi yang mencakup konsep dan relasinya, dengan keterbatasan pada konversi lengkap serta relasi bertingkat. Dalam konteks LOINC, \citet{michel-picque_classifier_2024} memanfaatkan hubungan antarkomponen melalui \textit{classifier chains}. Bagi penelitian ini, implikasinya adalah bahwa kandidat tidak cukup dinilai dari nama konsep utama: spesimen, metode, waktu, satuan, dan tingkat kekhususan perlu dipertahankan sesuai informasi masukan.
+
+\subsection{LLM dan Retrieval-Augmented Generation}
+
+LLM memungkinkan pemrosesan istilah dan konteks melalui instruksi serta contoh, sedangkan RAG menambahkan kandidat dari basis pengetahuan terminologi. \citet{huh_comparative_2025} membandingkan beberapa pendekatan untuk pemetaan istilah diagnosis lokal rumah sakit di Korea ke SNOMED CT. Konfigurasi RAG menghasilkan \textit{valid match} 96,2\% dan \textit{exact match} 57,6\% pada evaluasi tersebut. Perbedaan kedua ukuran menunjukkan pentingnya membedakan pemetaan yang masih dapat diterima dari padanan yang benar-benar tepat tingkat kekhususannya.
+
+\citet{de_barros_vanzin_llm-based_2025} membandingkan alur RAG dengan alur agen untuk pemetaan kosakata dan melaporkan nilai F1 yang sebanding, dengan keunggulan \textit{recall} pada alur agen yang melakukan perbaikan kueri. Temuan ini mendukung pemeriksaan kontribusi pencarian kandidat dan penyaringan terhadap hasil akhir. Angka hasil antarpenelitian tidak digunakan sebagai peringkat metode secara langsung karena dataset, terminologi target, serta definisi keberhasilannya berbeda. Dalam penelitian ini, manfaat \textit{retrieval} dan \textit{reranking} akan diperiksa pada data evaluasi yang sama melalui pembandingan dan ablasi.
+
+\section{Ekstraksi Entitas dan Adaptasi Bahasa Klinis}
+\label{sec:tinjauan-ekstraksi-bahasa}
+
+\subsection{Ekstraksi Entitas dan Konteks Klinis}
+
+Pemetaan dari teks naratif memerlukan pengenalan entitas sebelum pemilihan kode. NLP2FHIR mengintegrasikan ekstraksi entitas, informasi obat, dan temporalitas dengan aturan normalisasi untuk membentuk representasi FHIR \citep{hong_developing_2019}. Studi tersebut memperlihatkan pentingnya penghubung antara keluaran NLP dan struktur data tujuan. Namun, keberhasilan membentuk struktur belum dengan sendirinya menyelesaikan pemilihan padanan terminologi.
+
+\citet{peterson_automating_2020} mengembangkan alur ekstraksi konsep, pemilihan fokus, dan identifikasi relasi untuk mengubah deskripsi masalah klinis menjadi ekspresi SNOMED CT. Studi ini relevan untuk mempertahankan hubungan antarkomponen, tetapi cakupan deskripsi masalah klinis tidak dapat langsung dianggap setara dengan ekstraksi seluruh entitas dari dokumen panjang. Perbedaan unit masukan tersebut menjadi dasar pemisahan antara ekstraksi multi-entitas dan dekomposisi satu CDE dalam penelitian ini.
+
+Dari kedua pendekatan tersebut, kebutuhan adaptasi yang diturunkan adalah mempertahankan entitas beserta bukti dan konteksnya ketika diteruskan ke pemetaan. Sebagai ilustrasi kebutuhan penelitian, frasa ``tidak demam'' dan ``ibu pasien mengalami demam'' sama-sama memuat istilah demam, tetapi berbeda status serta pihak yang mengalami kondisi. Karena itu, ekstraksi perlu mempertahankan negasi, temporalitas, dan \textit{experiencer}. Evaluasi ekstraksi dan evaluasi pemetaan juga perlu dipisahkan agar kesalahan menemukan entitas tidak tercampur dengan kesalahan memilih kode.
+
+\subsection{Pemetaan Lintas Bahasa dan Bahasa Indonesia}
+
+Pemetaan lintas bahasa telah diteliti melalui pencocokan istilah Mandarin dengan deskripsi SNOMED CT berbahasa Inggris \citep{chen_automatic_2022}. Studi tersebut menunjukkan pendekatan pencocokan semantik tanpa tahap penerjemahan terpisah, tetapi berfokus pada pasangan istilah. Penelitian pada istilah lokal Korea juga memberi bukti bahwa RAG dapat digunakan dalam konteks non-Inggris \citep{huh_comparative_2025}. Bukti ini menjadi dasar pengembangan lintas bahasa, sementara keberhasilannya pada teks panjang berbahasa Indonesia masih perlu dievaluasi secara khusus.
+
+Untuk Bahasa Indonesia, \citet{purwitasari_comparison_2023} membandingkan transformer dan BiLSTM pada tugas \textit{Biomedical Named Entity Recognition} (BioNER) menggunakan teks konsultasi kesehatan daring. XLM-R dan strategi \textit{self-training} menunjukkan manfaat untuk pengenalan entitas pada bahasa tidak formal dengan anotasi terbatas. Fokus keluaran studi tersebut adalah entitas, sehingga hasilnya menjadi landasan bagi tahap ekstraksi, bukan bukti bahwa entitas telah dipetakan ke SNOMED CT, LOINC, dan ICD-10.
+
+Kajian \citet{ayuningtyas_bringing_2025} menunjukkan penggunaan terminologi lokal bersama terminologi standar dalam dokumen pedoman interoperabilitas Indonesia. Karena unit analisisnya adalah dokumen kebijakan, temuan tersebut digunakan sebagai bukti kebutuhan penyelarasan konsep, bukan sebagai ukuran keberhasilan sistem pemetaan pada data produksi. Kajian implementasi \citet{heryawan_fast_2025} melengkapi konteks ini dengan mengidentifikasi pemetaan data sebagai salah satu tantangan teknis interoperabilitas.
+
+Sintesis penelitian tersebut mendasari adaptasi pada dua tingkat: normalisasi variasi bahasa sebelum ekstraksi, serta penyesuaian kueri dan pencarian kandidat setelah entitas terbentuk. Singkatan, ejaan tidak baku, istilah lokal, dan campuran bahasa menjadi kondisi pengujian yang relevan. Konteks pertanyaan pasien dan jawaban dokter juga perlu dibedakan dalam penggunaan korpus konsultasi, agar kemungkinan diagnosis atau informasi umum tidak otomatis diperlakukan sebagai fakta pasien. Pilihan aturan, model, dan skema keluaran dijabarkan pada Bab IV.
+
+\section{CDE-Mapper sebagai Dasar Pengembangan}
+\label{sec:tinjauan-cde-mapper}
+
+CDE-Mapper menghubungkan \textit{clinical data elements} (CDE), baik atomik maupun komposit, dengan berbagai kosakata terkendali \citep{gilani_cde-mapper_2025}. Masukannya dapat berupa baris kamus data yang mengandung label, kategori, satuan, formula, dan kunjungan. Melalui dekomposisi berbasis LLM, CDE komposit diuraikan menjadi konsep utama serta atribut untuk mengarahkan pencarian kandidat. Kemampuan tersebut menjadikannya dasar yang relevan bagi pemetaan entitas klinis hasil ekstraksi.
+
+Komponen yang digunakan mencakup pengayaan basis pengetahuan, dekomposisi kueri, \textit{ensemble retrieval}, penyaringan, \textit{two-step reranking}, dan \textit{knowledge reservoir} \citep{gilani_cde-mapper_2025}. Evaluasi pada BC5CDR-D, NCBI-DC, MIID, dan HF Studies memberi bukti kemampuan kerangka tersebut pada tugas yang diuji, termasuk penanganan CDE komposit. Penelitian ini mengadopsi prinsip pemisahan pencarian dan penilaian kandidat tersebut; uraian mekanismenya ditempatkan pada Bab III, sedangkan adaptasinya dijelaskan pada Bab IV.
+
+Tiga batas penerapan perlu diperhatikan. Pertama, dukungan berbagai kosakata sudah merupakan kemampuan dasar CDE-Mapper. Kontribusi penelitian ini terletak pada pengembangan dan evaluasi pemetaan terpadu ke tiga terminologi target untuk masukan berbahasa Indonesia, dengan pemilihan target sesuai domain serta konteks. Kedua, dekomposisi satu CDE komposit berbeda dari pengenalan banyak entitas dalam dokumen; diperlukan tahap ekstraksi sebelum keluaran dapat diteruskan ke pemetaan. Ketiga, hasil pada dataset berbahasa Inggris belum membuktikan kemampuan pada variasi linguistik Indonesia \citep{gilani_cde-mapper_2025,purwitasari_comparison_2023}.
+
+Adaptasi yang diusulkan karena itu mempertahankan fondasi pemetaan, lalu menghubungkannya dengan normalisasi, ekstraksi multi-entitas, dan aturan pemilihan terminologi. Penilaian kandidat mempertimbangkan domain, atribut, granularitas, serta konsistensi LLM. Penggabungan bukti tersebut dirumuskan sebagai pilihan metode penelitian pada Bab IV dan akan diuji kontribusinya; peningkatan akurasi maupun efisiensi belum diasumsikan sebelum evaluasi. Penggunaan reservoir juga perlu dibedakan dari gold standard pengujian agar pemanfaatan pemetaan terdahulu tidak mencampurkan data pengembangan dan data uji.
+
+\subsection{Dasar Pemilihan LLM dan RAG}
+\label{sec:dasar-pemilihan-llm-rag}
+
+Tabel~\ref{tab:dasar-pemilihan-llm-rag} membandingkan pendekatan berdasarkan mekanisme pemetaan dan kesesuaiannya dengan kebutuhan penelitian, bukan sebagai peringkat kinerja antarpenelitian. Pendekatan leksikal, pembelajaran terawasi, dan representasi semantik tetap memiliki peran sebagai pembanding maupun komponen pendukung. Sebagai contoh, \citet{michel-picque_classifier_2024} menunjukkan bahwa \textit{classifier chains} memberikan hasil yang kompetitif terhadap model bahasa pada pemetaan LOINC berbahasa Prancis. Pemilihan LLM dan RAG karena itu didasarkan pada kebutuhan menghubungkan pengolahan masukan dengan pencarian serta penilaian kandidat, bukan pada anggapan bahwa pendekatan lain selalu lebih rendah.
+
+\begingroup
+\small
+\setstretch{1.0}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}p{\dimexpr0.33\textwidth-24pt\relax}@{}}
+\caption{Perbandingan pendekatan pemetaan terminologi sebagai dasar pemilihan LLM dan RAG}\label{tab:dasar-pemilihan-llm-rag}\\
+\toprule
+\textbf{Pendekatan pemetaan} & \textbf{Referensi representatif} & \textbf{Kemampuan yang didukung studi} & \textbf{Batas bukti dan pertimbangan penerapan} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\textit{Tabel \thetable\ (lanjutan)}}\\
+\toprule
+\textbf{Pendekatan pemetaan} & \textbf{Referensi representatif} & \textbf{Kemampuan yang didukung studi} & \textbf{Batas bukti dan pertimbangan penerapan} \\
+\midrule
+\endhead
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
+Pencocokan leksikal dan aturan & \citet{sitaru_digitalising_2024} & Normalisasi, sinonim, dan kemiripan karakter digunakan untuk memetakan diagnosis dermatologi ke ICD-10-GM. & Singkatan, salah eja tertentu, istilah lama, dan kebutuhan konteks masih menimbulkan kesalahan pada implementasi yang diuji. Tetap relevan sebagai pembanding dan pendukung normalisasi. \\
+\midrule
+Prediksi komponen terminologi dengan pembelajaran terawasi & \citet{michel-picque_classifier_2024} & \textit{Classifier chains} memanfaatkan ketergantungan antarkomponen LOINC dan memberikan hasil yang kompetitif terhadap model bahasa. & Evaluasi menggunakan data pemeriksaan laboratorium berbahasa Prancis. Penerapan pada domain, bahasa, dan terminologi lain memerlukan pengujian tambahan. \\
+\midrule
+Pencocokan berbasis representasi semantik & \citet{zahra_obtaining_2024}; \citet{zhou_multiview_2022} & Representasi istilah, struktur ontologi, dan pola kemunculan kode membantu pencocokan yang tidak hanya bergantung pada kesamaan teks. & Kemiripan representasi pada istilah yang berlawanan atau berdekatan maknanya menjadi keterbatasan yang dibahas Zahra dan Kate. Struktur konsep dan deskripsi lokal tetap perlu diperhatikan saat menilai kandidat. \\
+\midrule
+LLM berbasis \textit{prompt} tanpa \textit{retrieval} terminologi eksplisit & \citet{huh_comparative_2025}, konfigurasi \textit{baseline} dan \textit{prompt-engineered} & Menghasilkan usulan pemetaan istilah melalui instruksi, sebagai pembanding bagi konfigurasi dengan \textit{fine-tuning} atau \textit{retrieval}. & Konfigurasi RAG memberikan hasil lebih baik dalam evaluasi studi tersebut. Bukti ini mendukung pengujian penambahan kandidat, bukan generalisasi bahwa seluruh LLM tanpa \textit{retrieval} akan gagal. \\
+\midrule
+LLM dengan \textit{retrieval} terminologi & \citet{gilani_cde-mapper_2025}; \citet{huh_comparative_2025}; \citet{de_barros_vanzin_llm-based_2025} & Menghubungkan pencarian kandidat dengan dekomposisi CDE atau pemilihan padanan oleh LLM. Alur agen juga dapat memperbaiki kueri pemetaan. & Kecocokan valid belum selalu eksak. Perbedaan \textit{recall} antaralur menunjukkan perlunya mengevaluasi pencarian dan penyaringan kandidat secara terpisah dari pemilihan kode akhir. \\
+\end{longtable}
+\endgroup
+
+Pengelompokan pada tabel didasarkan pada mekanisme utama dalam konfigurasi yang dibahas, bukan kategori arsitektur yang sepenuhnya terpisah. Satu penelitian dapat menggabungkan beberapa mekanisme. Pertimbangan penerapan merupakan sintesis untuk kebutuhan penelitian ini, bukan pernyataan bahwa seluruh metode dalam satu kelompok memiliki keterbatasan yang sama.
+
+LLM dipilih terutama untuk menguraikan masukan menjadi konsep utama dan atribut yang dapat digunakan dalam pemetaan. CDE-Mapper memberikan contoh penerapan fungsi tersebut melalui dekomposisi kueri, aturan domain dalam \textit{prompt}, dan penggunaan contoh dalam konteks \citep{gilani_cde-mapper_2025}. Dalam penelitian ini, fungsi tersebut menjadi dasar penghubung antara keluaran ekstraksi dan tahap pemetaan. Namun, dekomposisi CDE yang telah tersedia tidak disamakan dengan ekstraksi banyak entitas dari dokumen panjang. Penggunaan LLM untuk ekstraksi multi-entitas berbahasa Indonesia tetap diposisikan sebagai adaptasi yang perlu diuji, bukan kemampuan yang telah dibuktikan oleh evaluasi CDE-Mapper.
+
+RAG dipilih untuk melengkapi pemrosesan oleh LLM dengan kandidat dari sumber terminologi. Pembagian peran ini memungkinkan pencarian kandidat dan penilaian padanan diperiksa sebagai tahap yang berbeda. Studi \citet{huh_comparative_2025} menunjukkan manfaat penambahan \textit{retrieval}, meskipun kecocokan valid belum selalu eksak, sedangkan \citet{de_barros_vanzin_llm-based_2025} memperlihatkan perbedaan \textit{recall} antara alur RAG dan alur agen dengan perbaikan kueri. Berdasarkan sintesis tersebut, penelitian ini mengusulkan evaluasi terpisah terhadap cakupan kandidat dan ketepatan pemilihan akhir, disertai pembandingan dengan konfigurasi tanpa \textit{retrieval}. Penggunaan RAG merupakan pilihan metode yang akan diuji kontribusinya, bukan jaminan ketepatan pemetaan.
+
+\section{Sintesis Kesenjangan dan Posisi Penelitian}
+\label{sec:sintesis-gap-penelitian}
+
+Berbeda dari Tabel~\ref{tab:dasar-pemilihan-llm-rag} yang menjelaskan dasar pemilihan pendekatan, Tabel~\ref{tab:studi-inti-pemetaan} merangkum bukti dari studi individual dan implikasinya bagi alur penelitian. Pemilihannya mencakup pemetaan leksikal dan semantik, ekstraksi, adaptasi bahasa, serta CDE-Mapper. Matriks ini menekankan hubungan temuan dengan kebutuhan metode, bukan perbandingan angka dari eksperimen yang tidak setara.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.24\textwidth}>{\raggedright\arraybackslash}p{\dimexpr0.31\textwidth-24pt\relax}@{}}
+\caption{Sintesis studi inti dan implikasinya bagi penelitian}\label{tab:studi-inti-pemetaan}\\
+\toprule
+\textbf{Studi} & \textbf{Masukan dan pendekatan} & \textbf{Batas bukti atau cakupan} & \textbf{Implikasi bagi riset} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\textit{Tabel \thetable\ (lanjutan)}}\\
+\toprule
+\textbf{Studi} & \textbf{Masukan dan pendekatan} & \textbf{Batas bukti atau cakupan} & \textbf{Implikasi bagi riset} \\
+\midrule
+\endhead
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
+\citet{meizoso_automated_2011} & Archetype openEHR; pencocokan leksikal dan struktur ke SNOMED CT. & Ketepatan pasangan belum diikuti cakupan seluruh konsep. & Menyertakan pembanding leksikal dan mengukur cakupan. \\
+\midrule
+\citet{sitaru_digitalising_2024} & Diagnosis dermatologi; sinonim, normalisasi, dan fuzzy matching. & Bergantung pada cakupan variasi istilah dan konteks. & Menguji normalisasi serta variasi ejaan. \\
+\midrule
+\citet{zahra_obtaining_2024} & Istilah klinis; embedding dari ontologi SNOMED CT. & Bukti normalisasi istilah bergantung pada struktur terminologi. & Memanfaatkan representasi semantik dan atribut konsep. \\
+\midrule
+\citet{hong_developing_2019} & Teks EHR; integrasi keluaran NLP ke FHIR. & Pembentukan struktur tidak otomatis menyelesaikan terminology binding. & Memisahkan ekstraksi dari pemilihan kode. \\
+\midrule
+\citet{peterson_automating_2020} & Deskripsi masalah klinis; ekstraksi fokus dan relasi ke SNOMED CT. & Unit deskripsi masalah berbeda dari seluruh dokumen panjang. & Mempertahankan relasi dan mengevaluasi ekstraksi multi-entitas. \\
+\midrule
+\citet{chen_automatic_2022} & Pasangan istilah Mandarin--Inggris; pencocokan semantik. & Cakupan evaluasi berupa pasangan istilah. & Menguji adaptasi lintas bahasa pada input Indonesia. \\
+\midrule
+\citet{huh_comparative_2025} & Istilah diagnosis lokal Korea; LLM dengan RAG ke SNOMED CT. & Valid match dan exact match menunjukkan tingkat ketepatan berbeda. & Menilai granularitas kandidat dan hasil pemetaan. \\
+\midrule
+\citet{purwitasari_comparison_2023} & Konsultasi Indonesia; BioNER dengan transformer dan self-training. & Keluaran entitas belum merupakan kode terminologi standar. & Menghubungkan ekstraksi dengan retrieval dan mapping. \\
+\midrule
+\citet{ayuningtyas_bringing_2025} & Pedoman interoperabilitas Indonesia; analisis terminologi. & Analisis kebijakan tidak mengukur performa pada data produksi. & Menetapkan konteks lokal dan kebutuhan validasi data nyata. \\
+\midrule
+\citet{gilani_cde-mapper_2025} & CDE berbahasa Inggris; dekomposisi, retrieval, reranking, dan reservoir. & Belum menjadi bukti pipeline teks panjang berbahasa Indonesia. & Mengadaptasi fondasi mapping dan menguji tiga kebutuhan riset. \\
+\end{longtable}
+\endgroup
+
+\subsection{Kesenjangan yang Selaras dengan Rumusan Masalah}
+
+\textbf{Pertama, pemetaan terpadu ke beberapa terminologi.} Studi pemetaan yang ditinjau memiliki target dan unit masukan berbeda, sedangkan CDE-Mapper telah menyediakan dukungan berbagai kosakata \citep{kate_automatic_2020,huh_comparative_2025,gilani_cde-mapper_2025}. Kesenjangan yang menjadi fokus penelitian ini adalah kebutuhan pengembangan dan evaluasi pemilihan target SNOMED CT, LOINC, dan ICD-10 bagi entitas dari teks Indonesia, dengan mempertahankan domain serta atribut. Pemetaan simultan dimaknai sebagai pemrosesan beberapa kebutuhan terminologi dalam satu pipeline; setiap entitas diarahkan ke target yang sesuai, tanpa mewajibkan seluruh entitas mempunyai padanan pada ketiga standar.
+
+\textbf{Kedua, ekstraksi banyak CDE dari teks panjang.} Penelitian NLP dan pembentukan ekspresi klinis menunjukkan pentingnya ekstraksi konsep serta relasi, sementara CDE-Mapper berangkat dari CDE yang telah tersedia sebagai unit pemetaan \citep{hong_developing_2019,peterson_automating_2020,gilani_cde-mapper_2025}. Kebutuhan yang belum terjawab oleh bukti tersebut untuk penelitian ini adalah penghubung dari dokumen panjang berbahasa Indonesia menuju daftar CDE yang mempertahankan konteks dan dapat dipetakan secara konsisten. Modul ekstraksi berbasis LLM karena itu perlu diuji tersendiri serta sebagai bagian pipeline lengkap untuk menilai propagasi kesalahan.
+
+\textbf{Ketiga, adaptasi retrieval ensemble terhadap Bahasa Indonesia.} Studi lintas bahasa dan BioNER Indonesia memberi dasar bagi pencocokan semantik serta pengenalan entitas, tetapi tidak langsung membuktikan keberhasilan pemetaan multi-terminologi dari narasi Indonesia \citep{chen_automatic_2022,purwitasari_comparison_2023}. Adaptasi perlu mencakup normalisasi variasi lokal, pembentukan kueri, dan pengambilan kandidat yang relevan. Kontribusinya harus diukur pada gold standard berbahasa Indonesia, termasuk kasus singkatan, ejaan tidak baku, dan campuran bahasa, dengan pembandingan terhadap baseline tanpa adaptasi.
+
+Tabel~\ref{tab:identifikasi-kesenjangan-penelitian} menghubungkan ketiga kesenjangan tersebut dengan rumusan masalah Bab I dan rancangan pengujian Bab IV. Penyaringan, reranking, serta reservoir ditempatkan sebagai komponen pendukung pemetaan yang kontribusinya juga perlu diperiksa.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\caption{Hubungan rumusan masalah, kesenjangan, adaptasi, dan evaluasi}
+\label{tab:identifikasi-kesenjangan-penelitian}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Rumusan masalah} & \textbf{Kesenjangan dari sintesis studi} & \textbf{Adaptasi usulan} & \textbf{Arah evaluasi} \\
+\midrule
+1. Multi-terminologi & Dukungan banyak kosakata belum membuktikan ketepatan pemilihan target pada narasi Indonesia. & Routing berdasarkan domain, filtering, dan penilaian atribut serta granularitas. & Ketepatan per terminologi, coverage, dan ablasi routing. \\
+\midrule
+2. Teks panjang & Dekomposisi CDE belum mencakup ekstraksi seluruh entitas dan konteks dokumen. & Ekstraksi multi-entitas berbasis LLM dan transformasi ke kueri mapping. & Kualitas ekstraksi, pemetaan dengan entitas yang sama, dan evaluasi end-to-end. \\
+\midrule
+3. Bahasa Indonesia & Bukti lintas bahasa dan BioNER belum menetapkan performa retrieval ensemble pada variasi Indonesia. & Normalisasi, penyesuaian kueri, dan hybrid retrieval. & Baseline tanpa adaptasi, ablasi preprocessing, dan uji variasi bahasa. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Posisi Penelitian}
+
+Penelitian ini memosisikan CDE-Mapper sebagai fondasi untuk mengembangkan alur dari teks klinis panjang berbahasa Indonesia menuju entitas terstruktur dan kode terminologi yang sesuai. Kontribusinya diarahkan pada keterhubungan normalisasi, ekstraksi, pemilihan terminologi, dan retrieval, dengan konteks klinis dipertahankan sepanjang proses. Skor kandidat, konsistensi penilaian, mekanisme abstain, dan reservoir tervalidasi menjadi bagian rancangan untuk mendukung keputusan yang dapat ditelusuri. Keunggulan setiap komponen akan ditentukan melalui evaluasi dan ablasi, bukan disimpulkan dari keberadaan komponen saja. Landasan mekanismenya dijelaskan pada Bab III dan operasionalisasi serta pengujiannya pada Bab IV.
+
+\begingroup
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+\clearpage
+\endgroup
+
+
+

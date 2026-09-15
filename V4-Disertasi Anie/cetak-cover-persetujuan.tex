@@ -1,0 +1,199 @@
+\documentclass[12pt, a4paper, onecolumn, oneside]{report}
+\usepackage[bahasa]{babel}
+\addto\captionsbahasa{\renewcommand{\bibname}{DAFTAR PUSTAKA}} % PERINTAH BARU
+\usepackage[top=3cm, left=4cm, bottom=3cm, right=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float} % untuk posisi [H] yang lebih baik
+\usepackage{titlesec}
+\usepackage{chngcntr}
+\usepackage{tocbasic}
+\usepackage{tocloft}
+\usepackage{setspace}
+\usepackage{times}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{pdflscape}
+\usepackage{pdfpages}
+
+
+% \bibliographystyle{ieeetr}
+% \bibliographystyle{IEEEtran}
+\usepackage[natbibapa]{apacite}
+\bibliographystyle{apacite-dkk}
+\renewcommand{\BOthers}[1]{dkk.\hbox{}}
+\renewcommand{\BOthersPeriod}[1]{dkk.\hbox{}}
+
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning, fit, backgrounds, calc}
+
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{indentfirst}
+\usepackage[hidelinks]{hyperref}
+
+% Pengaturan format bab
+\renewcommand{\thechapter}{\Roman{chapter}}
+\titleformat{\chapter}[display]
+{\bfseries\centering\large}
+{\MakeUppercase{\chaptertitlename} \thechapter}
+{0pt}
+{\MakeUppercase}
+\titleformat{name=\chapter,numberless}[display]
+{\bfseries\centering\large}
+{}
+{0pt}
+{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-30pt}{20pt}
+
+% Pengaturan format section
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+\titleformat{\section}
+{\bfseries}
+{\thesection}{1em}{}
+
+% Pengaturan format subsection
+\titleformat{\subsection}
+{\bfseries}
+{\thesubsection}{1em}{}
+
+% Pengaturan spasi
+\onehalfspacing
+
+% Mengurangi Overfull \hbox kecil (pemenggalan baris)
+\emergencystretch=2em
+
+% Pengaturan penomoran
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+\counterwithin{equation}{chapter}
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
+\renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
+\renewcommand{\cftfigpresnum}{Gambar~}
+\renewcommand{\cfttabpresnum}{Tabel~}
+\settowidth{\cftfignumwidth}{Gambar~10.10\quad}
+\settowidth{\cfttabnumwidth}{Tabel~10.10\quad}
+
+\renewcommand{\cftchappresnum}{BAB }
+\setlength{\cftchapnumwidth}{5em}
+\renewcommand{\cftchapaftersnum}{}  % jika ingin titik setelah nomor
+
+% \renewcommand{\bibname}{DAFTAR PUSTAKA}
+
+\makeatletter
+\renewcommand{\tableofcontents}{%
+  \@starttoc{toc}%
+}
+\renewcommand{\listoffigures}{%
+  \@starttoc{lof}%
+}
+\renewcommand{\listoftables}{%
+  \@starttoc{lot}%
+}
+\makeatother
+
+% Pastikan nama-nama tersebut sesuai (dalam huruf besar)
+\renewcommand{\contentsname}{DAFTAR ISI}
+\renewcommand{\listfigurename}{DAFTAR GAMBAR}
+\renewcommand{\listtablename}{DAFTAR TABEL}
+
+% Memuat variabel dari metadata.tex
+\input{metadata}
+
+\begin{document}
+
+% Halaman Judul
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    
+    {\bfseries\large \jenisdokumen\par}
+    \vspace{1.3cm}
+    
+    {\bfseries\large \judul\par}
+    \vspace{1.3cm}
+    
+    \includegraphics[width=2in, height=2in]{media/logo-ugm.png}
+    \vspace{1.3cm}
+    
+    {\bfseries Diusulkan Oleh:\par}
+    {\bfseries \penulis\par}
+    \vspace{1cm}
+    
+    {\bfseries Dosen Pembimbing:\par}
+    {\bfseries \promotor\par}
+    {\bfseries \kopromotor\par}
+    \vspace{1.3cm}
+    
+    {\bfseries PROGRAM DOKTOR ILMU KOMPUTER\par}
+    {\bfseries DEPARTEMEN ILMU KOMPUTER DAN ELEKTRONIKA\par}
+    {\bfseries FAKULTAS MATEMATIKA DAN ILMU PENGETAHUAN ALAM\par}
+    {\bfseries UNIVERSITAS GADJAH MADA\par}
+    {\bfseries YOGYAKARTA\par}
+    {\bfseries 2026\par}
+\end{titlepage}
+
+% Halaman Pengesahan
+\newpage
+\pagenumbering{roman}
+\begin{sloppypar}
+\include{persetujuan}
+% \include{pengesahan}
+\end{sloppypar}
+% \newpage
+
+
+% % Daftar Isi
+% \chapter*{DAFTAR ISI}
+% \addcontentsline{toc}{chapter}{DAFTAR ISI}
+% \makeatletter\@starttoc{toc}\makeatother
+
+% \newpage
+
+% % Daftar Gambar
+% \chapter*{DAFTAR GAMBAR}
+% \addcontentsline{toc}{chapter}{DAFTAR GAMBAR}
+% \makeatletter\@starttoc{lof}\makeatother
+
+% \newpage
+
+% \chapter*{DAFTAR TABEL}
+% \addcontentsline{toc}{chapter}{DAFTAR TABEL}
+% \makeatletter\@starttoc{lot}\makeatother
+% \newpage
+% \include{glosarium}
+% \newpage
+% \include{ringkasan}
+% \cleardoublepage
+% \pagenumbering{arabic}
+% \pagestyle{myheadings}
+
+% % Bab I
+% \include{bab-1}
+
+
+% % Bab II
+% % \chapter{TINJAUAN PUSTAKA}
+% % Isi tinjauan pustaka...
+
+% \include{bab-2}
+
+% % Bab III
+% % \chapter{LANDASAN TEORI}
+% % Isi landasan teori...
+% \include{bab-3}
+
+% % Bab IV
+% \include{bab-4}
+
+% % Daftar Pustaka
+% \addcontentsline{toc}{chapter}{DAFTAR PUSTAKA}
+% \bibliography{term-mapping}
+
+\end{document}

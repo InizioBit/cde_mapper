@@ -1,0 +1,25 @@
+flowchart TD
+    A[CNN Features<br>Local Patterns] --> C[Cross-Channel Attention]
+    B[Transformer Features<br>Global Context] --> C
+    
+    C --> D[Feature Interaction Analysis]
+    
+    D --> E[Adaptive Weight Generator]
+    
+    subgraph E [Dynamic Weight Computation]
+        E1[Complexity Assessment] --> E2[Channel-wise Weighting]
+        E2 --> E3[Spatial-wise Weighting]
+        E3 --> E4[Fusion Coefficients<br>α, β]
+    end
+    
+    E --> F[Weighted Feature Fusion]
+    
+    F --> G[Spatial Attention Refinement]
+    
+    G --> H[Fused Feature Output<br>Optimized Representation]
+    
+    style A fill:#e8f5e8
+    style B fill:#fff3e0
+    style C fill:#e3f2fd
+    style E fill:#fce4ec
+    style H fill:#1b5e20,color:white

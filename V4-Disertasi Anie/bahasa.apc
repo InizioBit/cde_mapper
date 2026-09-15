@@ -1,0 +1,4 @@
+% bahasa.apc -- APACite language definitions for 'bahasa' (Indonesian)
+% Minimal stub to silence apacite's missing-language warning in this project.
+\ProvidesFile{bahasa.apc}[2026/02/08 APACite bahasa stub]
+\endinput

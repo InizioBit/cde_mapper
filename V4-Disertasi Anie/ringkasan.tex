@@ -1,0 +1,12 @@
+\chapter*{RINGKASAN}
+\addcontentsline{toc}{chapter}{RINGKASAN}
+
+Interoperabilitas data kesehatan memerlukan penyelarasan makna istilah klinis dengan terminologi standar. Variasi istilah lokal, singkatan, dan campuran bahasa dalam narasi Indonesia menjadi tantangan pemetaan. CDE-Mapper telah mendukung berbagai kosakata, tetapi penerapannya pada narasi Indonesia memerlukan adaptasi. Penelitian ini mengembangkan dan mengevaluasi adaptasi CDE-Mapper untuk pemetaan terpadu ke SNOMED CT, LOINC, dan ICD-10; ekstraksi banyak \textit{clinical data elements} (CDE) dari teks panjang; serta adaptasi \textit{retrieval ensemble} terhadap bahasa Indonesia. Ketiga terminologi dipilih sesuai domain dan konteks dan kebutuhan representasi informasi.
+
+Metode mengintegrasikan normalisasi, segmentasi, ekstraksi multi-entitas berbasis \textit{large language model} (LLM), pemilihan terminologi target, serta dekomposisi CDE dengan mempertahankan atribut, negasi, dan temporalitas. Pencarian menggunakan \textit{hybrid retrieval} yang menggabungkan jalur leksikal dan semantik, dilanjutkan penyaringan dan pemeringkatan ulang berdasarkan domain, atribut, granularitas, serta konsistensi penilaian LLM. Kasus di bawah ambang penerimaan menghasilkan keputusan \textit{abstain} untuk ditinjau ahli. Pemetaan tervalidasi disimpan dalam \textit{knowledge reservoir} dengan memperhatikan konteks dan versi terminologi.
+
+Data direncanakan berasal dari rekam medis elektronik lokal dan konsultasi kesehatan daring yang dianonimkan. Tenaga medis menyusun \textit{gold standard}, dengan pemeriksaan kesepakatan antar-anotator dan adjudikasi. Data pengembangan dipisahkan dari data uji; jawaban acuan data uji tidak digunakan untuk mengisi reservoir. Evaluasi memisahkan kualitas ekstraksi, pemetaan dengan masukan entitas yang sama, dan kinerja \textit{end-to-end}. Pembanding mencakup pencocokan leksikal, LLM tanpa RAG, dan CDE-Mapper tanpa adaptasi bahasa Indonesia. Pengujian meliputi ablasi komponen dan ketahanan terhadap variasi bahasa, menggunakan akurasi pemetaan, kualitas peringkat kandidat, presisi, \textit{recall}, F1, cakupan, konsistensi, waktu inferensi, serta analisis pertukaran akurasi dan cakupan keputusan otomatis.
+
+Luaran yang diharapkan berupa kerangka adaptasi dan prototipe pemetaan yang dapat ditelusuri untuk mendukung interoperabilitas semantik. Peningkatan akurasi dan efisiensi akan ditentukan melalui evaluasi.
+
+\textbf{Kata kunci}: CDE-Mapper, teks klinis bahasa Indonesia, pemetaan multi-terminologi, LLM, \textit{hybrid retrieval}.

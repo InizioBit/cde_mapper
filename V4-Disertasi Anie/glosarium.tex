@@ -1,0 +1,142 @@
+\chapter*{DAFTAR ISTILAH}
+\addcontentsline{toc}{chapter}{DAFTAR ISTILAH}
+
+{\setstretch{1}
+\setlength{\parskip}{0pt}
+\begin{description}
+\setlength{\itemsep}{0.75\baselineskip}
+\setlength{\parsep}{0pt}
+\setlength{\topsep}{0pt}
+
+    \item[\textit{Ablation study}] Teknik evaluasi untuk mengukur kontribusi setiap komponen model dengan cara menghapus atau menonaktifkan komponen tertentu secara bertahap.
+
+    \item[AI (\textit{Artificial Intelligence})] Cabang ilmu komputer yang mengembangkan sistem untuk meniru kemampuan kognitif manusia, termasuk pemahaman bahasa dan pengambilan keputusan.
+
+    \item[\textit{Baseline}] Metode atau model pembanding yang digunakan sebagai acuan untuk menilai peningkatan kinerja pendekatan yang diusulkan.
+
+    \item[BERT] \textit{Bidirectional Encoder Representations from Transformers}, model bahasa berbasis transformer dua arah untuk memahami konteks kata berdasarkan hubungan dengan kata sebelum dan sesudahnya.
+
+    \item[BiLSTM] \textit{Bidirectional Long Short-Term Memory}, jenis RNN yang memproses urutan teks dari dua arah (kiri dan kanan); sering digunakan untuk NER sebelum era transformer.
+
+    \item[BioNER] \textit{Biomedical Named Entity Recognition}, teknik untuk mengenali dan mengekstraksi entitas penting pada teks biomedis atau klinis, seperti penyakit, obat, gejala, dan prosedur.
+
+    \item[CDE (\textit{Common Data Element})] Elemen data standar yang digunakan untuk menyeragamkan definisi, struktur, dan representasi data agar dapat digunakan lintas sistem.
+
+    \item[CDE-Mapper] \textit{Framework} pemetaan yang dirancang untuk menghubungkan elemen data atau istilah ke kosakata terkendali; menjadi dasar adaptasi model dalam penelitian ini.
+
+    \item[CDSS (\textit{Clinical Decision Support System})] Sistem yang membantu tenaga kesehatan dalam pengambilan keputusan klinis melalui penyediaan rekomendasi, peringatan, atau informasi yang relevan.
+
+    \item[Code-Mixing] Fenomena pencampuran dua bahasa dalam satu ujaran atau teks; dalam konteks klinis Indonesia, sering mencampur istilah Indonesia dengan Inggris.
+
+    \item[\textit{Controlled vocabulary}] Kosakata terkendali berupa himpunan istilah standar yang digunakan secara konsisten agar representasi data memiliki makna yang seragam.
+
+    \item[\textit{Coverage}] Metrik evaluasi yang menunjukkan sejauh mana sistem mampu menghasilkan pemetaan untuk data atau istilah yang diuji.
+
+    \item[CRF (\textit{Conditional Random Field})] Lapisan probabilistik yang sering ditambahkan di atas BiLSTM atau BERT untuk memastikan konsistensi label berurutan dalam tugas NER.
+
+    \item[cTAKES] \textit{clinical Text Analysis and Knowledge Extraction System}, toolkit NLP \textit{open-source} dari Mayo Clinic untuk ekstraksi entitas klinis dari teks rekam medis.
+
+    \item[\textit{Deep learning}] Pendekatan pembelajaran mesin berbasis jaringan saraf berlapis banyak yang mampu mempelajari representasi data yang kompleks.
+
+    \item[EHR (\textit{Electronic Health Record})] Rekam kesehatan elektronik yang menyimpan riwayat informasi kesehatan pasien secara digital dan dapat diakses lintas layanan.
+
+    \item[\textit{Ensemble retrieval}] Strategi pencarian kandidat yang menggabungkan beberapa \textit{retriever} secara paralel (misal SPLADE dan SapBERT) untuk menghasilkan daftar kandidat yang lebih kaya.
+
+    \item[F1-score] Metrik evaluasi yang menggabungkan \textit{precision} dan \textit{recall} untuk menilai keseimbangan antara ketepatan dan kelengkapan hasil model.
+
+    \item[FHIR (\textit{Fast Healthcare Interoperability Resources})] Standar pertukaran data kesehatan yang dikembangkan oleh HL7 untuk mendukung interoperabilitas sistem kesehatan secara digital.
+
+    \item[\textit{Framework}] Kerangka kerja konseptual dan teknis yang memandu perancangan, integrasi, dan implementasi komponen dalam suatu sistem.
+
+    \item[\textit{Gold standard}] Data acuan yang telah diverifikasi, umumnya oleh pakar, dan digunakan sebagai rujukan utama dalam pelatihan, pengujian, atau validasi sistem.
+
+    \item[GPT (\textit{Generative Pre-trained Transformer})] Model bahasa generatif berbasis transformer yang dilatih terlebih dahulu pada korpus besar untuk menghasilkan dan memahami teks.
+
+    \item[\textit{Graph embeddings}] Teknik representasi simpul atau entitas dalam graf ke dalam bentuk vektor numerik agar hubungan semantik dapat diproses oleh model komputasional.
+
+    \item[HL7 (\textit{Health Level Seven})] Organisasi pengembang standar pertukaran data kesehatan, termasuk FHIR.
+
+    \item[ICD (\textit{International Classification of Diseases})] Sistem klasifikasi penyakit yang digunakan untuk pengodean diagnosis, pelaporan statistik, dan manajemen kesehatan.
+
+    \item[ICD-10] Revisi kesepuluh dari \textit{International Classification of Diseases} yang banyak digunakan untuk klasifikasi diagnosis dan kondisi kesehatan.
+
+    \item[\textit{Inter-Annotator Agreement}] Tingkat kesepakatan antara dua atau lebih anotator dalam memberikan label pada dataset; diukur dengan koefisien Kappa.
+
+    \item[\textit{Interoperabilitas}] Kemampuan dua atau lebih sistem untuk bertukar data dan memanfaatkan data tersebut secara efektif dalam konteks yang sama.
+
+    \item[\textit{Knowledge graph}] Representasi pengetahuan dalam bentuk graf yang memodelkan entitas dan relasinya untuk mendukung penelusuran serta penalaran semantik.
+
+    \item[\textit{Knowledge reservoir}] Basis penyimpanan pasangan label--kode yang telah tervalidasi untuk mempercepat inferensi dan meningkatkan konsistensi lintas dokumen.
+
+    \item[KPTL] Kode Pembiayaan Tindakan dan Layanan Kesehatan Nasional, terminologi nasional Indonesia untuk kebutuhan pembiayaan kesehatan.
+
+    \item[LLaMA (\textit{Large Language Model Meta AI})] Keluarga model bahasa besar terbuka dari Meta (7B--65B parameter) yang dioptimalkan untuk efisiensi inferensi.
+
+    \item[LLM (\textit{Large Language Model})] Model bahasa berukuran besar dengan miliaran parameter, mampu memahami, merangkum, dan menghasilkan teks secara kontekstual.
+
+    \item[LOINC (\textit{Logical Observation Identifiers Names and Codes})] Standar terminologi untuk observasi klinis, pemeriksaan laboratorium, dan pengukuran kesehatan.
+
+    \item[\textit{Low-resource language}] Bahasa dengan sumber daya data, korpus, dan anotasi digital yang terbatas untuk pengembangan model komputasional.
+
+    \item[\textit{Machine learning}] Pendekatan komputasional yang memungkinkan sistem mempelajari pola dari data untuk membuat prediksi atau keputusan tanpa diprogram secara eksplisit.
+
+    \item[MRR (\textit{Mean Reciprocal Rank})] Metrik evaluasi \textit{retrieval} yang memberi bobot lebih tinggi jika kandidat benar muncul pada peringkat lebih awal.
+
+    \item[NER (\textit{Named Entity Recognition})] Teknik NLP untuk mengidentifikasi dan mengklasifikasikan entitas penting dalam teks.
+
+    \item[NLP (\textit{Natural Language Processing})] Bidang kecerdasan artifisial yang berfokus pada pengolahan, analisis, dan pemahaman bahasa manusia oleh komputer.
+
+    \item[OMOP CDM] \textit{Observational Medical Outcomes Partnership Common Data Model}, model data standar untuk standardisasi struktur data observasional kesehatan.
+
+    \item[\textit{Ontologi}] Representasi formal mengenai konsep-konsep dalam suatu domain beserta relasi antarkonsep untuk mendukung konsistensi makna.
+
+    \item[\textit{Post-coordination}] Kemampuan membuat konsep baru dalam SNOMED CT dengan menggabungkan beberapa konsep yang sudah ada beserta relasinya.
+
+    \item[\textit{Precision}] Metrik evaluasi yang menunjukkan proporsi hasil prediksi yang benar dari seluruh hasil yang diprediksi positif atau relevan oleh sistem.
+
+    \item[\textit{Preprocessing}] Tahap pembersihan dan normalisasi teks sebelum pemrosesan lebih lanjut (\textit{case folding}, \textit{stemming}, normalisasi singkatan, dll.).
+
+    \item[\textit{Query decomposition}] Tahap pemecahan CDE komposit menjadi komponen-komponen kecil (\textit{base entity}, \textit{domain}, \textit{unit}, \textit{visit}, dll.) menggunakan LLM.
+
+    \item[RAG (\textit{Retrieval-Augmented Generation})] Pendekatan yang menggabungkan pencarian informasi dengan generasi teks berbasis model bahasa untuk meningkatkan relevansi keluaran.
+
+    \item[\textit{Recall}] Metrik evaluasi yang menunjukkan proporsi data relevan yang berhasil ditemukan atau dipetakan dengan benar oleh sistem.
+
+    \item[Reranking] Proses mengurutkan ulang kandidat hasil \textit{retrieval} menggunakan model atau kriteria tambahan agar hasil teratas menjadi lebih relevan.
+
+    \item[RME (Rekam Medis Elektronik)] Istilah Bahasa Indonesia untuk \textit{Electronic Health Record} (EHR) atau sistem pencatatan medis pasien secara digital.
+
+    \item[\textit{Rule-based}] Pendekatan berbasis aturan eksplisit yang disusun secara manual untuk mengenali pola, istilah, atau relasi tertentu dalam data.
+
+    \item[SapBERT] \textit{Retriever dense} berbasis BERT yang dirancang khusus untuk entitas biomedis, mampu mendekatkan representasi sinonim.
+
+    \item[SATUSEHAT] Platform interoperabilitas data kesehatan nasional di Indonesia yang mengintegrasikan data antar fasilitas dan sistem kesehatan.
+
+    \item[\textit{Self-consistency}] Mekanisme pengulangan penilaian LLM beberapa kali dengan \textit{prompt} yang sama untuk menghitung \textit{confidence score} dari hasil yang konsisten.
+
+    \item[\textit{Semantic retrieval}] Teknik penelusuran informasi yang memanfaatkan kemiripan makna, bukan hanya kecocokan kata, untuk menemukan kandidat yang relevan.
+
+    \item[\textit{Sentence transformer}] Arsitektur transformer yang dirancang untuk menghasilkan representasi vektor tingkat kalimat sehingga cocok untuk pencarian semantik.
+
+    \item[SNOMED CT] \textit{Systematized Nomenclature of Medicine -- Clinical Terms}, terminologi klinis komprehensif untuk merepresentasikan konsep medis secara rinci dan terstruktur.
+
+    \item[SPARQL] Bahasa kueri untuk basis data RDF (\textit{Resource Description Framework}).
+
+    \item[SPLADE] \textit{Sparse Lexical and Dense Embedding}, \textit{retriever sparse} yang mengombinasikan kecocokan leksikal dengan representasi \textit{embedding}.
+
+    \item[T5 (\textit{Text-to-Text Transfer Transformer})] Model transformer yang memformulasikan berbagai tugas NLP dalam bentuk masukan teks dan keluaran teks.
+
+    \item[\textit{Terminologi klinis}] Sistem istilah baku untuk merepresentasikan konsep klinis, seperti penyakit, prosedur, gejala, hasil pemeriksaan, dan intervensi.
+
+    \item[\textit{Top-k accuracy}] Metrik yang mengukur apakah kode \textit{gold standard} muncul di antara \textit{k} kandidat teratas yang dihasilkan sistem.
+
+    \item[\textit{Transformer}] Arsitektur model jaringan saraf yang memanfaatkan mekanisme \textit{attention} untuk memproses hubungan antarkata atau antarsatuan teks secara efisien.
+
+    \item[\textit{Two-step reranking}] Proses penilaian ulang kandidat oleh LLM: memberi skor relevansi lalu mengklasifikasikan ke kategori (\textit{exact}, \textit{highly}, \textit{partial}, \textit{not relevant}).
+
+    \item[\textit{Vector embedding}] Representasi numerik dalam bentuk vektor yang menangkap makna atau karakteristik suatu kata, istilah, kalimat, atau entitas.
+
+    \item[XLM-R] \textit{Cross-lingual Language Model -- RoBERTa}, model transformer multibahasa yang dilatih pada 100 bahasa; \textit{robust} untuk BioNER bahasa Indonesia.
+
+\end{description}
+}
